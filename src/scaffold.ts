@@ -1,0 +1,825 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
+
+export type TargetCategory = 'mobile' | 'desktop' | 'web';
+
+export interface SkeletonDef {
+  name: string;
+  label: string;
+  description: string;
+  files: Record<string, string>;
+}
+
+// ---------------------------------------------------------------------------
+// Base file contents
+// ---------------------------------------------------------------------------
+
+const THEME_TOML = `# theme.toml — brand colors
+# Change primary to your brand color; fsx dev generates the full Material 3 theme.
+primary = "#54a4ff"
+# secondary = "#a78bfa"
+# tertiary = "#7ee787"
+`;
+
+const PERMISSIONS_TOML = `# permissions.toml — uncomment what your app needs
+# camera = "Scan QR codes"
+# microphone = "Voice notes"
+# location = "Show nearby items"
+# photos = "Save images to your photo library"
+# contacts = "Invite friends from your contacts"
+# notifications = "Reminders for due tasks"
+# face_id = "Unlock the app with Face ID"
+`;
+
+const LINKS_TOML = `# links.toml — deep links + universal links
+# scheme = "myapp"                         # myapp://...
+# domains = ["myapp.com", "app.myapp.com"] # https://... universal links
+`;
+
+const DOT_ENV = `# Build-time env vars — values become process.env.* at compile time.
+# API_BASE_URL=https://staging.api.example.com
+`;
+
+const PRIVACY_MD = `# Privacy Policy
+
+<!-- TODO: replace this stub before publishing to the App Store or Play Store. -->
+<!-- Stores will reject your app without a real, legally-reviewed privacy policy. -->
+
+This app collects no personal data.
+`;
+
+const TERMS_MD = `# Terms of Service
+
+<!-- TODO: replace this stub with real terms before publishing. -->
+
+By using this app, you agree to use it responsibly.
+`;
+
+const PRETTIER_RC = `{
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "all"
+}
+`;
+
+const ESLINT_CONFIG_JS = `import tseslint from 'typescript-eslint';
+import prettierConfig from 'eslint-config-prettier';
+
+export default tseslint.config(
+  ...tseslint.configs.recommended,
+  prettierConfig,
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
+);
+`;
+
+// ---------------------------------------------------------------------------
+// Skeleton file contents
+// ---------------------------------------------------------------------------
+
+const LOCALE_EN_BASIC = `{
+  "app.title": "My App"
+}
+`;
+
+// --- Mobile skeletons -------------------------------------------------------
+
+const MOBILE_BLANK_APP_TSX = `import { useState } from 'flutter-tsx';
+import { Center, Column, ElevatedButton, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+export const MainApp = () => {
+  const [count, setCount] = useState(0);
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        <Center>
+          <Column>
+            <Text>Count: {count}</Text>
+            <ElevatedButton onPressed={() => setCount(count + 1)}>
+              <Text>Tap me</Text>
+            </ElevatedButton>
+          </Column>
+        </Center>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const MOBILE_TABS_APP_TSX = `import { useState } from 'flutter-tsx';
+import { BottomNavigationBar, BottomNavigationBarItem, Icon, MaterialApp, Scaffold } from 'flutter-tsx';
+import { DiscoverScreen } from './screens/DiscoverScreen.js';
+import { HomeScreen } from './screens/HomeScreen.js';
+import { SettingsScreen } from './screens/SettingsScreen.js';
+
+export const MainApp = () => {
+  const [tab, setTab] = useState(0);
+  const screens = [<HomeScreen />, <DiscoverScreen />, <SettingsScreen />];
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        {screens[tab]}
+        <BottomNavigationBar currentIndex={tab} onTap={setTab}>
+          <BottomNavigationBarItem icon={<Icon name="home" />} label="Home" />
+          <BottomNavigationBarItem icon={<Icon name="explore" />} label="Discover" />
+          <BottomNavigationBarItem icon={<Icon name="settings" />} label="Settings" />
+        </BottomNavigationBar>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const MOBILE_HOME_SCREEN_TSX = `import { Center, Text } from 'flutter-tsx';
+
+export const HomeScreen = () => (
+  <Center>
+    <Text>Home</Text>
+  </Center>
+);
+`;
+
+const MOBILE_DISCOVER_SCREEN_TSX = `import { Center, Text } from 'flutter-tsx';
+
+export const DiscoverScreen = () => (
+  <Center>
+    <Text>Discover</Text>
+  </Center>
+);
+`;
+
+const MOBILE_SETTINGS_SCREEN_TSX = `import { Center, Text } from 'flutter-tsx';
+
+export const SettingsScreen = () => (
+  <Center>
+    <Text>Settings</Text>
+  </Center>
+);
+`;
+
+const MOBILE_DRAWER_APP_TSX = `import { useState } from 'flutter-tsx';
+import { Drawer, DrawerHeader, ListTile, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+export const MainApp = () => {
+  const [page, setPage] = useState('home');
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        <Drawer>
+          <DrawerHeader>
+            <Text>Menu</Text>
+          </DrawerHeader>
+          <ListTile title="Home" onTap={() => setPage('home')} />
+          <ListTile title="About" onTap={() => setPage('about')} />
+        </Drawer>
+        <Text>Current page: {page}</Text>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const MOBILE_LIST_DETAIL_APP_TSX = `import { useState } from 'flutter-tsx';
+import { ListTile, ListView, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+const ITEMS = ['Item 1', 'Item 2', 'Item 3'];
+
+export const MainApp = () => {
+  const [selected, setSelected] = useState<string | null>(null);
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        {selected == null ? (
+          <ListView>
+            {ITEMS.map((item) => (
+              <ListTile key={item} title={item} onTap={() => setSelected(item)} />
+            ))}
+          </ListView>
+        ) : (
+          <Text>{selected}</Text>
+        )}
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const MOBILE_FEED_APP_TSX = `import { Card, ListView, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+const POSTS = ['Post 1', 'Post 2', 'Post 3', 'Post 4', 'Post 5'];
+
+export const MainApp = () => (
+  <MaterialApp title="Feed">
+    <Scaffold>
+      <ListView>
+        {POSTS.map((post) => (
+          <Card key={post}>
+            <Text>{post}</Text>
+          </Card>
+        ))}
+      </ListView>
+    </Scaffold>
+  </MaterialApp>
+);
+`;
+
+const MOBILE_WIZARD_APP_TSX = `import { useState } from 'flutter-tsx';
+import { Column, ElevatedButton, MaterialApp, Scaffold, Text, TextField } from 'flutter-tsx';
+
+const STEPS = ['Name', 'Email', 'Review'];
+
+export const MainApp = () => {
+  const [step, setStep] = useState(0);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  return (
+    <MaterialApp title="Setup">
+      <Scaffold>
+        <Column>
+          <Text>Step {step + 1} of {STEPS.length}: {STEPS[step]}</Text>
+          {step === 0 && <TextField value={name} onChanged={setName} decoration={{ labelText: 'Your name' }} />}
+          {step === 1 && <TextField value={email} onChanged={setEmail} decoration={{ labelText: 'Your email' }} />}
+          {step === 2 && <Text>Name: {name}, Email: {email}</Text>}
+          {step < STEPS.length - 1 && (
+            <ElevatedButton onPressed={() => setStep(step + 1)}>
+              <Text>Next</Text>
+            </ElevatedButton>
+          )}
+        </Column>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const MOBILE_AUTH_TABS_APP_TSX = `import { useState } from 'flutter-tsx';
+import { BottomNavigationBar, BottomNavigationBarItem, Center, Column, ElevatedButton, Icon, MaterialApp, Scaffold, Text, TextField } from 'flutter-tsx';
+
+const LoginScreen = ({ onLogin }: { onLogin: () => void }) => (
+  <Center>
+    <Column>
+      <TextField decoration={{ labelText: 'Email' }} />
+      <TextField decoration={{ labelText: 'Password', obscureText: true }} />
+      <ElevatedButton onPressed={onLogin}>
+        <Text>Log In</Text>
+      </ElevatedButton>
+    </Column>
+  </Center>
+);
+
+export const MainApp = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [tab, setTab] = useState(0);
+  if (!loggedIn) {
+    return (
+      <MaterialApp title="My App">
+        <Scaffold>
+          <LoginScreen onLogin={() => setLoggedIn(true)} />
+        </Scaffold>
+      </MaterialApp>
+    );
+  }
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        <Center><Text>Tab {tab}</Text></Center>
+        <BottomNavigationBar currentIndex={tab} onTap={setTab}>
+          <BottomNavigationBarItem icon={<Icon name="home" />} label="Home" />
+          <BottomNavigationBarItem icon={<Icon name="person" />} label="Profile" />
+        </BottomNavigationBar>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+// --- Desktop skeletons ------------------------------------------------------
+
+const DESKTOP_BLANK_APP_TSX = `import { MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+export const MainApp = () => (
+  <MaterialApp title="My App">
+    <Scaffold appBar={{ title: <Text>My App</Text> }}>
+      <Text>Hello, desktop!</Text>
+    </Scaffold>
+  </MaterialApp>
+);
+`;
+
+const DESKTOP_TRAY_APP_TSX = `// src/App.tsx — menubar / system-tray app
+// Uses the tray_manager plugin. Run: dart pub add tray_manager
+import { Container, MaterialApp } from 'flutter-tsx';
+
+// useTray hook (tray_manager): registers a system-tray icon on startup
+// and shows a popup menu with Quit action.
+// See: https://pub.dev/packages/tray_manager
+export const MainApp = () => (
+  <MaterialApp title="Tray App">
+    <Container />
+  </MaterialApp>
+);
+`;
+
+const DESKTOP_SIDEBAR_APP_TSX = `import { useState } from 'flutter-tsx';
+import { Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+
+const ITEMS = ['Home', 'Projects', 'Settings'];
+
+export const MainApp = () => {
+  const [selected, setSelected] = useState('Home');
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        <Row>
+          <Container width={200}>
+            <Column>
+              {ITEMS.map((item) => (
+                <Text key={item} onTap={() => setSelected(item)}>{item}</Text>
+              ))}
+            </Column>
+          </Container>
+          <Container>
+            <Text>{selected}</Text>
+          </Container>
+        </Row>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const DESKTOP_TOOLBAR_APP_TSX = `import { Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+
+export const MainApp = () => (
+  <MaterialApp title="My App">
+    <Scaffold>
+      <Column>
+        <Row>
+          <Text>File</Text>
+          <Text>Edit</Text>
+          <Text>View</Text>
+        </Row>
+        <Container>
+          <Text>Canvas</Text>
+        </Container>
+      </Column>
+    </Scaffold>
+  </MaterialApp>
+);
+`;
+
+const DESKTOP_THREE_PANE_APP_TSX = `import { useState } from 'flutter-tsx';
+import { Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+
+const SECTIONS = ['Documents', 'Images', 'Videos'];
+const ITEMS: Record<string, string[]> = {
+  Documents: ['Doc 1', 'Doc 2'],
+  Images: ['Image 1', 'Image 2'],
+  Videos: ['Video 1'],
+};
+
+export const MainApp = () => {
+  const [section, setSection] = useState('Documents');
+  const [item, setItem] = useState<string | null>(null);
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        <Row>
+          <Container width={160}>
+            {SECTIONS.map((s) => (
+              <Text key={s} onTap={() => setSection(s)}>{s}</Text>
+            ))}
+          </Container>
+          <Container width={200}>
+            {(ITEMS[section] ?? []).map((i) => (
+              <Text key={i} onTap={() => setItem(i)}>{i}</Text>
+            ))}
+          </Container>
+          <Container>
+            <Text>{item ?? 'Select an item'}</Text>
+          </Container>
+        </Row>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const DESKTOP_TABBED_DOCUMENT_APP_TSX = `import { useState } from 'flutter-tsx';
+import { Container, MaterialApp, Row, Scaffold, Tab, TabBar, Text } from 'flutter-tsx';
+
+const TABS = ['Document 1', 'Document 2', 'Document 3'];
+
+export const MainApp = () => {
+  const [tab, setTab] = useState(0);
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        <TabBar currentIndex={tab} onTap={setTab}>
+          {TABS.map((t) => (
+            <Tab key={t} text={t} />
+          ))}
+        </TabBar>
+        <Container>
+          <Text>{TABS[tab]}</Text>
+        </Container>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+// --- Web skeletons ----------------------------------------------------------
+
+const WEB_BLANK_APP_TSX = `import { Center, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+export const MainApp = () => (
+  <MaterialApp title="My Site">
+    <Scaffold>
+      <Center>
+        <Text>Welcome to My Site</Text>
+      </Center>
+    </Scaffold>
+  </MaterialApp>
+);
+`;
+
+const WEB_DASHBOARD_APP_TSX = `import { Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+
+const STATS = ['Users: 1,234', 'Revenue: $5,678', 'Orders: 910'];
+
+export const MainApp = () => (
+  <MaterialApp title="Dashboard">
+    <Scaffold appBar={{ title: <Text>Dashboard</Text> }}>
+      <Row>
+        <Container width={200}>
+          <Column>
+            <Text>Sidebar</Text>
+            <Text>Overview</Text>
+            <Text>Reports</Text>
+          </Column>
+        </Container>
+        <Column>
+          <Row>
+            {STATS.map((stat) => (
+              <Container key={stat}>
+                <Text>{stat}</Text>
+              </Container>
+            ))}
+          </Row>
+        </Column>
+      </Row>
+    </Scaffold>
+  </MaterialApp>
+);
+`;
+
+const WEB_MARKETING_APP_TSX = `import { Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+
+export const MainApp = () => (
+  <MaterialApp title="My Product">
+    <Scaffold>
+      <Column>
+        <Container>
+          <Text>Hero — Your tagline here</Text>
+          <Text>Start for free today</Text>
+        </Container>
+        <Container>
+          <Text>Features</Text>
+          <Row>
+            <Text>Fast</Text>
+            <Text>Reliable</Text>
+            <Text>Beautiful</Text>
+          </Row>
+        </Container>
+        <Container>
+          <Text>Pricing</Text>
+        </Container>
+        <Container>
+          <Text>© 2026 My Product</Text>
+        </Container>
+      </Column>
+    </Scaffold>
+  </MaterialApp>
+);
+`;
+
+const WEB_SECTIONS_APP_TSX = `import { Column, Container, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+const SECTIONS = [
+  { id: 'about', title: 'About' },
+  { id: 'work', title: 'Work' },
+  { id: 'contact', title: 'Contact' },
+];
+
+export const MainApp = () => (
+  <MaterialApp title="My Site">
+    <Scaffold>
+      <Column>
+        {SECTIONS.map((section) => (
+          <Container key={section.id}>
+            <Text>{section.title}</Text>
+            <Text>Content for {section.title}</Text>
+          </Container>
+        ))}
+      </Column>
+    </Scaffold>
+  </MaterialApp>
+);
+`;
+
+const WEB_AUTH_DASH_APP_TSX = `import { useState } from 'flutter-tsx';
+import { Center, Column, Container, ElevatedButton, MaterialApp, Row, Scaffold, Text, TextField } from 'flutter-tsx';
+
+const LoginPage = ({ onLogin }: { onLogin: () => void }) => (
+  <Center>
+    <Column>
+      <Text>Sign In</Text>
+      <TextField decoration={{ labelText: 'Email' }} />
+      <TextField decoration={{ labelText: 'Password', obscureText: true }} />
+      <ElevatedButton onPressed={onLogin}>
+        <Text>Log In</Text>
+      </ElevatedButton>
+    </Column>
+  </Center>
+);
+
+const DashboardPage = () => (
+  <Row>
+    <Container width={200}>
+      <Column>
+        <Text>Sidebar</Text>
+      </Column>
+    </Container>
+    <Column>
+      <Text>Dashboard Content</Text>
+    </Column>
+  </Row>
+);
+
+export const MainApp = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  return (
+    <MaterialApp title="My App">
+      <Scaffold>
+        {loggedIn ? <DashboardPage /> : <LoginPage onLogin={() => setLoggedIn(true)} />}
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+// ---------------------------------------------------------------------------
+// SKELETON_CATALOG
+// ---------------------------------------------------------------------------
+
+export const SKELETON_CATALOG: Record<TargetCategory, SkeletonDef[]> = {
+  mobile: [
+    {
+      name: 'blank',
+      label: 'Blank',
+      description: 'Single screen counter with useState',
+      files: {
+        'src/App.tsx': MOBILE_BLANK_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'tabs',
+      label: 'Bottom Tabs',
+      description: 'Bottom navigation bar with 3 tabs',
+      files: {
+        'src/App.tsx': MOBILE_TABS_APP_TSX,
+        'src/screens/HomeScreen.tsx': MOBILE_HOME_SCREEN_TSX,
+        'src/screens/DiscoverScreen.tsx': MOBILE_DISCOVER_SCREEN_TSX,
+        'src/screens/SettingsScreen.tsx': MOBILE_SETTINGS_SCREEN_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'drawer',
+      label: 'Side Drawer',
+      description: 'Left-side burger drawer navigation',
+      files: {
+        'src/App.tsx': MOBILE_DRAWER_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'list-detail',
+      label: 'List + Detail',
+      description: 'Master list that navigates to a detail screen',
+      files: {
+        'src/App.tsx': MOBILE_LIST_DETAIL_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'feed',
+      label: 'Feed',
+      description: 'Scrollable card feed with pull-to-refresh',
+      files: {
+        'src/App.tsx': MOBILE_FEED_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'wizard',
+      label: 'Multi-step Wizard',
+      description: 'Multi-step form with validation',
+      files: {
+        'src/App.tsx': MOBILE_WIZARD_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'auth-tabs',
+      label: 'Auth + Tabs',
+      description: 'Login screen that leads to a bottom nav',
+      files: {
+        'src/App.tsx': MOBILE_AUTH_TABS_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+  ],
+  desktop: [
+    {
+      name: 'blank',
+      label: 'Blank Window',
+      description: 'Single window with a menu bar',
+      files: {
+        'src/App.tsx': DESKTOP_BLANK_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'tray',
+      label: 'Tray App',
+      description: 'Menubar / system-tray app',
+      files: {
+        'src/App.tsx': DESKTOP_TRAY_APP_TSX,
+        'src/.tray-plugins.json': '["tray_manager"]\n',
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'sidebar',
+      label: 'Sidebar',
+      description: 'Left sidebar with selectable items and a detail pane',
+      files: {
+        'src/App.tsx': DESKTOP_SIDEBAR_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'toolbar',
+      label: 'Toolbar + Canvas',
+      description: 'Top toolbar with a central canvas',
+      files: {
+        'src/App.tsx': DESKTOP_TOOLBAR_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'three-pane',
+      label: 'Three Pane',
+      description: 'Sidebar + list + content pane',
+      files: {
+        'src/App.tsx': DESKTOP_THREE_PANE_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'tabbed-document',
+      label: 'Tabbed Document',
+      description: 'Top-level content tabs',
+      files: {
+        'src/App.tsx': DESKTOP_TABBED_DOCUMENT_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+  ],
+  web: [
+    {
+      name: 'blank',
+      label: 'Blank Page',
+      description: 'Single landing page',
+      files: {
+        'src/App.tsx': WEB_BLANK_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'dashboard',
+      label: 'Dashboard',
+      description: 'Top nav + sidebar + cards/stats',
+      files: {
+        'src/App.tsx': WEB_DASHBOARD_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'marketing',
+      label: 'Marketing Site',
+      description: 'Hero + sections + footer',
+      files: {
+        'src/App.tsx': WEB_MARKETING_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'sections',
+      label: 'Sections',
+      description: 'Section-based content with anchor-link navigation',
+      files: {
+        'src/App.tsx': WEB_SECTIONS_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
+      name: 'auth-dash',
+      label: 'Auth + Dashboard',
+      description: 'Login screen that leads to a dashboard',
+      files: {
+        'src/App.tsx': WEB_AUTH_DASH_APP_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const MOBILE_TARGETS = new Set(['ios', 'android', 'mobile']);
+const DESKTOP_TARGETS = new Set(['macos', 'windows', 'linux', 'desktop']);
+
+export const targetCategory = (target: string): TargetCategory => {
+  if (MOBILE_TARGETS.has(target)) return 'mobile';
+  if (DESKTOP_TARGETS.has(target)) return 'desktop';
+  return 'web';
+};
+
+const writeIfAbsent = (filePath: string, content: string | Buffer): void => {
+  if (existsSync(filePath)) return;
+  mkdirSync(dirname(filePath), { recursive: true });
+  writeFileSync(filePath, content);
+};
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+export const scaffoldBase = (projectDir: string): void => {
+  const TEMPLATES_DIR = join(import.meta.dir, '../templates');
+
+  writeIfAbsent(join(projectDir, 'theme.toml'), THEME_TOML);
+  writeIfAbsent(join(projectDir, 'permissions.toml'), PERMISSIONS_TOML);
+  writeIfAbsent(join(projectDir, 'links.toml'), LINKS_TOML);
+  writeIfAbsent(join(projectDir, '.env'), DOT_ENV);
+  writeIfAbsent(join(projectDir, 'legal', 'privacy.md'), PRIVACY_MD);
+  writeIfAbsent(join(projectDir, 'legal', 'terms.md'), TERMS_MD);
+  writeIfAbsent(join(projectDir, '.prettierrc'), PRETTIER_RC);
+  writeIfAbsent(join(projectDir, 'eslint.config.js'), ESLINT_CONFIG_JS);
+
+  const iconSrc = join(TEMPLATES_DIR, 'icons', 'icon.png');
+  const darkIconSrc = join(TEMPLATES_DIR, 'icons', 'dark', 'icon.png');
+  writeIfAbsent(join(projectDir, 'icons', 'icon.png'), readFileSync(iconSrc));
+  writeIfAbsent(
+    join(projectDir, 'icons', 'dark', 'icon.png'),
+    readFileSync(darkIconSrc),
+  );
+};
+
+export const scaffoldSkeleton = (
+  projectDir: string,
+  name: string,
+  targetCat: TargetCategory,
+): void => {
+  // Check if the skeleton exists anywhere in the catalog
+  const allCategories = Object.keys(SKELETON_CATALOG) as TargetCategory[];
+  const existsInAnyCategory = allCategories.some((cat) =>
+    SKELETON_CATALOG[cat].some((s) => s.name === name),
+  );
+
+  if (!existsInAnyCategory) {
+    throw new Error(`Skeleton "${name}" not found in any target category.`);
+  }
+
+  const skeleton = SKELETON_CATALOG[targetCat].find((s) => s.name === name);
+
+  if (!skeleton) {
+    throw new Error(
+      `"${name}" is not valid for the "${targetCat}" target. ` +
+        `Use a skeleton from: ${SKELETON_CATALOG[targetCat].map((s) => s.name).join(', ')}.`,
+    );
+  }
+
+  for (const [relPath, content] of Object.entries(skeleton.files)) {
+    writeIfAbsent(join(projectDir, relPath), content);
+  }
+};

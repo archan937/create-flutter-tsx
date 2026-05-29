@@ -1,0 +1,44 @@
+{
+  "name": "create-flutter-tsx",
+  "version": "0.1.0",
+  "description": "Scaffold a new flutter.tsx project — `npm create flutter-tsx@latest`",
+  "type": "module",
+  "bin": {
+    "create-flutter-tsx": "./dist/bin/create-flutter-tsx.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "bun run build:clean && bun run build:types && bun run build:bundle",
+    "build:clean": "rm -rf dist",
+    "build:types": "tsc -p tsconfig.build.json",
+    "build:bundle": "bun build ./bin/create-flutter-tsx.ts ./src/index.ts --outdir dist --target bun --format esm --splitting",
+    "typecheck": "tsc",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage --coverage-threshold=0.9975",
+    "quality": "bun run typecheck && bun run format && bun run lint && bun run test:coverage",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.0",
+    "citty": "^0.1.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.11.1",
+    "@types/bun": "^1.2.0",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.10.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.8.0"
+  }
+}
