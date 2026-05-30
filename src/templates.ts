@@ -2,13 +2,13 @@ export const appConfig = (
   appName: string,
   bundleId: string,
   target = 'web',
-): string => `import { defineConfig } from 'flutter-tsx/config';
+): string => `import type { AppConfig } from 'flutter-tsx/config';
 
-export default defineConfig({
+export default {
   name: '${appName}',
   bundleId: '${bundleId}',
   target: '${target}',
-});
+} satisfies AppConfig;
 `;
 
 export const userPackageJson = (appName: string): string => {

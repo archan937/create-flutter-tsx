@@ -108,7 +108,8 @@ On top of the chosen skeleton's `src/`, every project is seeded with the full Fl
 
 ```
 my-app/
-├── app.toml              # identity — name, bundleId, target
+├── config/
+│   └── app.ts            # typed identity — name, bundleId, target (satisfies AppConfig)
 ├── src/
 │   └── App.tsx           # your app (+ screens/ for multi-screen skeletons)
 ├── icons/
