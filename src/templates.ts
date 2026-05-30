@@ -72,10 +72,10 @@ build/
 .flutter-plugins-dependencies
 .packages
 
-# Secrets — referenced by config/release.ts, never committed
+# Signing credentials — referenced by config/platforms/<os>.ts, never committed
 .env
 .env.*
-secrets/
+signing/
 
 # OS
 .DS_Store

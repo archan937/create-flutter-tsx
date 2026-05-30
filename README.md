@@ -137,6 +137,12 @@ gives you autocomplete and compile-time checks. Permissions are **inferred** fro
 hooks you use (`useCamera()` adds the camera permission automatically). Nothing here is
 locked in — delete what you don't need.
 
+All six targets (web · iOS · Android · macOS · Windows · Linux) are first-class.
+Cross-platform values live once in `config/app.ts` + the semantic surfaces and fan out
+to every platform. For the rare OS-specific bits — signing/notarization,
+`deploymentTarget`, FCM files — add an optional `config/platforms/<os>.ts`; the actual
+credential files live in a gitignored `signing/<os>/` directory, referenced by path.
+
 ---
 
 ## Programmatic API
