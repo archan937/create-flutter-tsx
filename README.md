@@ -52,11 +52,11 @@ my-app
 
 Every prompt has a flag escape hatch; pass all three and the run is fully non-interactive.
 
-| Flag | Description |
-| --- | --- |
-| `<name>` | Project name / directory (positional) |
-| `--bundleId` | Bundle ID, e.g. `com.example.myapp` |
-| `--target` | `web` · `ios` · `android` · `macos` · `windows` · `linux` |
+| Flag         | Description                                                         |
+| ------------ | ------------------------------------------------------------------- |
+| `<name>`     | Project name / directory (positional)                               |
+| `--bundleId` | Bundle ID, e.g. `com.example.myapp`                                 |
+| `--target`   | `web` · `ios` · `android` · `macos` · `windows` · `linux`           |
 | `--template` | App skeleton — see the catalog below (must be valid for the target) |
 
 ---
@@ -67,36 +67,36 @@ The picker is **target-aware** — each target offers the patterns that make sen
 
 ### Mobile (`--target=ios|android`)
 
-| `--template` | Pattern |
-| --- | --- |
-| `blank` | Single screen counter with `useState` |
-| `tabs` | Bottom navigation across 3 screens |
-| `drawer` | Left-side burger drawer navigation |
+| `--template`  | Pattern                                       |
+| ------------- | --------------------------------------------- |
+| `blank`       | Single screen counter with `useState`         |
+| `tabs`        | Bottom navigation across 3 screens            |
+| `drawer`      | Left-side burger drawer navigation            |
 | `list-detail` | Master list that navigates to a detail screen |
-| `feed` | Scrollable card feed |
-| `wizard` | Multi-step form |
-| `auth-tabs` | Login screen that leads into a tabbed app |
+| `feed`        | Scrollable card feed                          |
+| `wizard`      | Multi-step form                               |
+| `auth-tabs`   | Login screen that leads into a tabbed app     |
 
 ### Desktop (`--target=macos|windows|linux`)
 
-| `--template` | Pattern |
-| --- | --- |
-| `blank` | Single window with a menu bar |
-| `tray` | Menubar / system-tray app (uses `tray_manager`) |
-| `sidebar` | Left sidebar with selectable items and a detail pane |
-| `toolbar` | Top toolbar with a central canvas |
-| `three-pane` | Sidebar + list + content pane |
-| `tabbed-document` | Top-level content tabs |
+| `--template`      | Pattern                                              |
+| ----------------- | ---------------------------------------------------- |
+| `blank`           | Single window with a menu bar                        |
+| `tray`            | Menubar / system-tray app (uses `tray_manager`)      |
+| `sidebar`         | Left sidebar with selectable items and a detail pane |
+| `toolbar`         | Top toolbar with a central canvas                    |
+| `three-pane`      | Sidebar + list + content pane                        |
+| `tabbed-document` | Top-level content tabs                               |
 
 ### Web (`--target=web`)
 
-| `--template` | Pattern |
-| --- | --- |
-| `blank` | Single landing page |
-| `dashboard` | Top nav + sidebar + cards/stats |
-| `marketing` | Hero + sections + footer |
-| `sections` | Section-based content with anchor-link navigation |
-| `auth-dash` | Login screen that leads to a dashboard |
+| `--template` | Pattern                                           |
+| ------------ | ------------------------------------------------- |
+| `blank`      | Single landing page                               |
+| `dashboard`  | Top nav + sidebar + cards/stats                   |
+| `marketing`  | Hero + sections + footer                          |
+| `sections`   | Section-based content with anchor-link navigation |
+| `auth-dash`  | Login screen that leads to a dashboard            |
 
 Every skeleton is verified to transpile to clean Dart (`dart analyze`, zero errors).
 
@@ -139,10 +139,20 @@ Nothing here is locked in — delete what you don't need.
 The scaffolder is also importable:
 
 ```ts
-import { runInit, scaffoldBase, scaffoldSkeleton, SKELETON_CATALOG } from 'create-flutter-tsx';
+import {
+  runInit,
+  scaffoldBase,
+  scaffoldSkeleton,
+  SKELETON_CATALOG,
+} from 'create-flutter-tsx';
 
 // drive the CLI with an argv array
-await runInit(['my-app', '--target=web', '--template=dashboard', '--bundleId=com.example.app']);
+await runInit([
+  'my-app',
+  '--target=web',
+  '--template=dashboard',
+  '--bundleId=com.example.app',
+]);
 
 // or scaffold pieces directly into a directory
 scaffoldBase('/path/to/my-app');
@@ -172,4 +182,4 @@ bun dist/bin/create-flutter-tsx.js my-app --target=web --template=dashboard --bu
 
 ## License
 
-MIT
+MIT © Paul Engel

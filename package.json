@@ -1,10 +1,38 @@
 {
   "name": "create-flutter-tsx",
   "version": "0.1.0",
-  "description": "Scaffold a new flutter.tsx project — `npm create flutter-tsx@latest`",
+  "description": "Scaffold a new Flutter.tsx project — `bun create flutter-tsx`",
+  "keywords": [
+    "flutter",
+    "dart",
+    "tsx",
+    "jsx",
+    "typescript",
+    "scaffold",
+    "create",
+    "cli",
+    "bun"
+  ],
+  "homepage": "https://github.com/archan937/create-flutter-tsx#readme",
+  "bugs": {
+    "url": "https://github.com/archan937/create-flutter-tsx/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/archan937/create-flutter-tsx.git"
+  },
+  "license": "MIT",
+  "author": "Paul Engel",
   "type": "module",
   "bin": {
     "create-flutter-tsx": "./dist/bin/create-flutter-tsx.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "exports": {
     ".": {

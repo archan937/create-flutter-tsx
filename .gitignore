@@ -10,6 +10,10 @@ dist/
 # Test coverage
 coverage/
 
+# Packaging artifacts / logs
+*.tgz
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
