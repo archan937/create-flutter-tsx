@@ -110,23 +110,32 @@ export const MainApp = () => {
 `;
 
 const MOBILE_TABS_APP_TSX = `import { useState } from 'flutter-tsx';
-import { BottomNavigationBar, BottomNavigationBarItem, Icon, MaterialApp, Scaffold } from 'flutter-tsx';
+import { Column, ElevatedButton, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
 import { DiscoverScreen } from './screens/DiscoverScreen.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 
 export const MainApp = () => {
   const [tab, setTab] = useState(0);
-  const screens = [<HomeScreen />, <DiscoverScreen />, <SettingsScreen />];
   return (
     <MaterialApp title="My App">
       <Scaffold>
-        {screens[tab]}
-        <BottomNavigationBar currentIndex={tab} onTap={setTab}>
-          <BottomNavigationBarItem icon={<Icon name="home" />} label="Home" />
-          <BottomNavigationBarItem icon={<Icon name="explore" />} label="Discover" />
-          <BottomNavigationBarItem icon={<Icon name="settings" />} label="Settings" />
-        </BottomNavigationBar>
+        <Column>
+          {tab === 0 && <HomeScreen />}
+          {tab === 1 && <DiscoverScreen />}
+          {tab === 2 && <SettingsScreen />}
+          <Row>
+            <ElevatedButton onPressed={() => setTab(0)}>
+              <Text>Home</Text>
+            </ElevatedButton>
+            <ElevatedButton onPressed={() => setTab(1)}>
+              <Text>Discover</Text>
+            </ElevatedButton>
+            <ElevatedButton onPressed={() => setTab(2)}>
+              <Text>Settings</Text>
+            </ElevatedButton>
+          </Row>
+        </Column>
       </Scaffold>
     </MaterialApp>
   );
@@ -240,8 +249,8 @@ export const MainApp = () => {
       <Scaffold>
         <Column>
           <Text>Step {step + 1} of {STEPS.length}: {STEPS[step]}</Text>
-          {step === 0 && <TextField value={name} onChanged={setName} decoration={{ labelText: 'Your name' }} />}
-          {step === 1 && <TextField value={email} onChanged={setEmail} decoration={{ labelText: 'Your email' }} />}
+          {step === 0 && <TextField label="Your name" onChanged={(v) => setName(v)} />}
+          {step === 1 && <TextField label="Your email" onChanged={(v) => setEmail(v)} />}
           {step === 2 && <Text>Name: {name}, Email: {email}</Text>}
           {step < STEPS.length - 1 && (
             <ElevatedButton onPressed={() => setStep(step + 1)}>
@@ -256,19 +265,7 @@ export const MainApp = () => {
 `;
 
 const MOBILE_AUTH_TABS_APP_TSX = `import { useState } from 'flutter-tsx';
-import { BottomNavigationBar, BottomNavigationBarItem, Center, Column, ElevatedButton, Icon, MaterialApp, Scaffold, Text, TextField } from 'flutter-tsx';
-
-const LoginScreen = ({ onLogin }: { onLogin: () => void }) => (
-  <Center>
-    <Column>
-      <TextField decoration={{ labelText: 'Email' }} />
-      <TextField decoration={{ labelText: 'Password', obscureText: true }} />
-      <ElevatedButton onPressed={onLogin}>
-        <Text>Log In</Text>
-      </ElevatedButton>
-    </Column>
-  </Center>
-);
+import { Center, Column, ElevatedButton, MaterialApp, Row, Scaffold, Text, TextField } from 'flutter-tsx';
 
 export const MainApp = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -277,7 +274,15 @@ export const MainApp = () => {
     return (
       <MaterialApp title="My App">
         <Scaffold>
-          <LoginScreen onLogin={() => setLoggedIn(true)} />
+          <Center>
+            <Column>
+              <TextField label="Email" />
+              <TextField label="Password" />
+              <ElevatedButton onPressed={() => setLoggedIn(true)}>
+                <Text>Log In</Text>
+              </ElevatedButton>
+            </Column>
+          </Center>
         </Scaffold>
       </MaterialApp>
     );
@@ -285,11 +290,18 @@ export const MainApp = () => {
   return (
     <MaterialApp title="My App">
       <Scaffold>
-        <Center><Text>Tab {tab}</Text></Center>
-        <BottomNavigationBar currentIndex={tab} onTap={setTab}>
-          <BottomNavigationBarItem icon={<Icon name="home" />} label="Home" />
-          <BottomNavigationBarItem icon={<Icon name="person" />} label="Profile" />
-        </BottomNavigationBar>
+        <Column>
+          {tab === 0 && <Center><Text>Home</Text></Center>}
+          {tab === 1 && <Center><Text>Profile</Text></Center>}
+          <Row>
+            <ElevatedButton onPressed={() => setTab(0)}>
+              <Text>Home</Text>
+            </ElevatedButton>
+            <ElevatedButton onPressed={() => setTab(1)}>
+              <Text>Profile</Text>
+            </ElevatedButton>
+          </Row>
+        </Column>
       </Scaffold>
     </MaterialApp>
   );
@@ -298,11 +310,12 @@ export const MainApp = () => {
 
 // --- Desktop skeletons ------------------------------------------------------
 
-const DESKTOP_BLANK_APP_TSX = `import { MaterialApp, Scaffold, Text } from 'flutter-tsx';
+const DESKTOP_BLANK_APP_TSX = `import { AppBar, MaterialApp, Scaffold, Text } from 'flutter-tsx';
 
 export const MainApp = () => (
   <MaterialApp title="My App">
-    <Scaffold appBar={{ title: <Text>My App</Text> }}>
+    <Scaffold>
+      <AppBar title="My App" />
       <Text>Hello, desktop!</Text>
     </Scaffold>
   </MaterialApp>
@@ -324,7 +337,7 @@ export const MainApp = () => (
 `;
 
 const DESKTOP_SIDEBAR_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+import { Column, Container, ListTile, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
 
 const ITEMS = ['Home', 'Projects', 'Settings'];
 
@@ -337,7 +350,7 @@ export const MainApp = () => {
           <Container width={200}>
             <Column>
               {ITEMS.map((item) => (
-                <Text key={item} onTap={() => setSelected(item)}>{item}</Text>
+                <ListTile key={item} title={item} onTap={() => setSelected(item)} />
               ))}
             </Column>
           </Container>
@@ -372,34 +385,34 @@ export const MainApp = () => (
 `;
 
 const DESKTOP_THREE_PANE_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+import { Column, Container, ListTile, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
 
 const SECTIONS = ['Documents', 'Images', 'Videos'];
-const ITEMS: Record<string, string[]> = {
-  Documents: ['Doc 1', 'Doc 2'],
-  Images: ['Image 1', 'Image 2'],
-  Videos: ['Video 1'],
-};
+const ITEMS = ['Item 1', 'Item 2', 'Item 3'];
 
 export const MainApp = () => {
   const [section, setSection] = useState('Documents');
-  const [item, setItem] = useState<string | null>(null);
+  const [item, setItem] = useState('Item 1');
   return (
     <MaterialApp title="My App">
       <Scaffold>
         <Row>
           <Container width={160}>
-            {SECTIONS.map((s) => (
-              <Text key={s} onTap={() => setSection(s)}>{s}</Text>
-            ))}
+            <Column>
+              {SECTIONS.map((s) => (
+                <ListTile key={s} title={s} onTap={() => setSection(s)} />
+              ))}
+            </Column>
           </Container>
           <Container width={200}>
-            {(ITEMS[section] ?? []).map((i) => (
-              <Text key={i} onTap={() => setItem(i)}>{i}</Text>
-            ))}
+            <Column>
+              {ITEMS.map((i) => (
+                <ListTile key={i} title={i} onTap={() => setItem(i)} />
+              ))}
+            </Column>
           </Container>
           <Container>
-            <Text>{item ?? 'Select an item'}</Text>
+            <Text>{section}: {item}</Text>
           </Container>
         </Row>
       </Scaffold>
@@ -409,7 +422,7 @@ export const MainApp = () => {
 `;
 
 const DESKTOP_TABBED_DOCUMENT_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Container, MaterialApp, Row, Scaffold, Tab, TabBar, Text } from 'flutter-tsx';
+import { Column, Container, ElevatedButton, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
 
 const TABS = ['Document 1', 'Document 2', 'Document 3'];
 
@@ -418,14 +431,22 @@ export const MainApp = () => {
   return (
     <MaterialApp title="My App">
       <Scaffold>
-        <TabBar currentIndex={tab} onTap={setTab}>
-          {TABS.map((t) => (
-            <Tab key={t} text={t} />
-          ))}
-        </TabBar>
-        <Container>
-          <Text>{TABS[tab]}</Text>
-        </Container>
+        <Column>
+          <Row>
+            <ElevatedButton onPressed={() => setTab(0)}>
+              <Text>Document 1</Text>
+            </ElevatedButton>
+            <ElevatedButton onPressed={() => setTab(1)}>
+              <Text>Document 2</Text>
+            </ElevatedButton>
+            <ElevatedButton onPressed={() => setTab(2)}>
+              <Text>Document 3</Text>
+            </ElevatedButton>
+          </Row>
+          <Container>
+            <Text>{TABS[tab]}</Text>
+          </Container>
+        </Column>
       </Scaffold>
     </MaterialApp>
   );
@@ -447,13 +468,14 @@ export const MainApp = () => (
 );
 `;
 
-const WEB_DASHBOARD_APP_TSX = `import { Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+const WEB_DASHBOARD_APP_TSX = `import { AppBar, Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
 
 const STATS = ['Users: 1,234', 'Revenue: $5,678', 'Orders: 910'];
 
 export const MainApp = () => (
   <MaterialApp title="Dashboard">
-    <Scaffold appBar={{ title: <Text>Dashboard</Text> }}>
+    <Scaffold>
+      <AppBar title="Dashboard" />
       <Row>
         <Container width={200}>
           <Column>
@@ -509,20 +531,16 @@ export const MainApp = () => (
 
 const WEB_SECTIONS_APP_TSX = `import { Column, Container, MaterialApp, Scaffold, Text } from 'flutter-tsx';
 
-const SECTIONS = [
-  { id: 'about', title: 'About' },
-  { id: 'work', title: 'Work' },
-  { id: 'contact', title: 'Contact' },
-];
+const SECTIONS = ['About', 'Work', 'Contact'];
 
 export const MainApp = () => (
   <MaterialApp title="My Site">
     <Scaffold>
       <Column>
         {SECTIONS.map((section) => (
-          <Container key={section.id}>
-            <Text>{section.title}</Text>
-            <Text>Content for {section.title}</Text>
+          <Container key={section}>
+            <Text>{section}</Text>
+            <Text>Content for {section}</Text>
           </Container>
         ))}
       </Column>
@@ -534,38 +552,34 @@ export const MainApp = () => (
 const WEB_AUTH_DASH_APP_TSX = `import { useState } from 'flutter-tsx';
 import { Center, Column, Container, ElevatedButton, MaterialApp, Row, Scaffold, Text, TextField } from 'flutter-tsx';
 
-const LoginPage = ({ onLogin }: { onLogin: () => void }) => (
-  <Center>
-    <Column>
-      <Text>Sign In</Text>
-      <TextField decoration={{ labelText: 'Email' }} />
-      <TextField decoration={{ labelText: 'Password', obscureText: true }} />
-      <ElevatedButton onPressed={onLogin}>
-        <Text>Log In</Text>
-      </ElevatedButton>
-    </Column>
-  </Center>
-);
-
-const DashboardPage = () => (
-  <Row>
-    <Container width={200}>
-      <Column>
-        <Text>Sidebar</Text>
-      </Column>
-    </Container>
-    <Column>
-      <Text>Dashboard Content</Text>
-    </Column>
-  </Row>
-);
-
 export const MainApp = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   return (
     <MaterialApp title="My App">
       <Scaffold>
-        {loggedIn ? <DashboardPage /> : <LoginPage onLogin={() => setLoggedIn(true)} />}
+        {loggedIn ? (
+          <Row>
+            <Container width={200}>
+              <Column>
+                <Text>Sidebar</Text>
+              </Column>
+            </Container>
+            <Column>
+              <Text>Dashboard Content</Text>
+            </Column>
+          </Row>
+        ) : (
+          <Center>
+            <Column>
+              <Text>Sign In</Text>
+              <TextField label="Email" />
+              <TextField label="Password" />
+              <ElevatedButton onPressed={() => setLoggedIn(true)}>
+                <Text>Log In</Text>
+              </ElevatedButton>
+            </Column>
+          </Center>
+        )}
       </Scaffold>
     </MaterialApp>
   );
