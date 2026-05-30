@@ -108,22 +108,23 @@ On top of the chosen skeleton's `src/`, every project is seeded with the full Fl
 
 ```
 my-app/
-├── config/
-│   └── app.ts            # typed identity — name, bundleId, target (satisfies AppConfig)
+├── config/               # typed config — `satisfies` a type from flutter-tsx/config
+│   ├── app.ts            #   identity: name, bundleId, target
+│   ├── theme.ts          #   brand colors → generated Material 3 theme
+│   ├── links.ts          #   deep links + universal links
+│   ├── env.ts            #   build-time vars → --dart-define
+│   └── permissions.ts    #   custom usage strings (perms are inferred from hooks)
 ├── src/
 │   └── App.tsx           # your app (+ screens/ for multi-screen skeletons)
 ├── icons/
 │   ├── icon.png          # 1024×1024 placeholder app icon
 │   └── dark/icon.png     # dark-variant placeholder
-├── theme.toml            # brand colors (primary = #54a4ff)
 ├── locales/
-│   └── en.json           # seeded with the keys the skeleton uses
+│   └── en.json           # translations — read via `const t = useTranslations()`
 ├── legal/
 │   ├── privacy.md        # TODO stubs
 │   └── terms.md
-├── permissions.toml      # every key commented — uncomment what you need
-├── links.toml            # deep-link / universal-link config (commented)
-├── .env                  # build-time env vars
+├── AGENTS.md             # guidance for AI assistants working in the project
 ├── package.json          # depends on flutter-tsx
 ├── tsconfig.json         # jsxImportSource: flutter-tsx
 ├── .prettierrc           # matched tooling
@@ -131,7 +132,10 @@ my-app/
 └── .gitignore
 ```
 
-Nothing here is locked in — delete what you don't need.
+Config is **typed TypeScript**, not config files to memorize: editing `config/theme.ts`
+gives you autocomplete and compile-time checks. Permissions are **inferred** from the
+hooks you use (`useCamera()` adds the camera permission automatically). Nothing here is
+locked in — delete what you don't need.
 
 ---
 

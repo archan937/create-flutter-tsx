@@ -56,7 +56,7 @@ describe('runInit — non-interactive mode', () => {
     expect(existsSync(join(dir, '.gitignore'))).toBe(true);
 
     // Surface defaults written by scaffoldBase
-    expect(existsSync(join(dir, 'theme.toml'))).toBe(true);
+    expect(existsSync(join(dir, 'config', 'theme.ts'))).toBe(true);
     expect(existsSync(join(dir, 'icons', 'icon.png'))).toBe(true);
     expect(existsSync(join(dir, 'locales', 'en.json'))).toBe(true);
     expect(existsSync(join(dir, 'legal', 'privacy.md'))).toBe(true);
@@ -265,9 +265,11 @@ describe('runInit — delegation contract', () => {
     }
 
     // All surface files prove scaffoldBase ran fully
-    expect(existsSync(join(tmp, 'spy-app', 'theme.toml'))).toBe(true);
-    expect(existsSync(join(tmp, 'spy-app', 'permissions.toml'))).toBe(true);
-    expect(existsSync(join(tmp, 'spy-app', 'links.toml'))).toBe(true);
+    expect(existsSync(join(tmp, 'spy-app', 'config', 'theme.ts'))).toBe(true);
+    expect(existsSync(join(tmp, 'spy-app', 'config', 'permissions.ts'))).toBe(
+      true,
+    );
+    expect(existsSync(join(tmp, 'spy-app', 'config', 'links.ts'))).toBe(true);
     expect(existsSync(join(tmp, 'spy-app', 'legal', 'privacy.md'))).toBe(true);
 
     rmSync(tmp, { recursive: true });

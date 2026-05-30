@@ -67,11 +67,10 @@ build/
 .flutter-plugins-dependencies
 .packages
 
-# Environment / secrets
+# Secrets — referenced by config/release.ts, never committed
 .env
 .env.*
-signing/
-push/APNs.p8
+secrets/
 
 # OS
 .DS_Store

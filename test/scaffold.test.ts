@@ -77,16 +77,19 @@ describe('SKELETON_CATALOG', () => {
 });
 
 describe('scaffoldBase', () => {
-  test('writes all surface files', () => {
+  test('writes all surface files (typed config/*.ts + assets)', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
 
-    expect(() => readFileSync(join(dir, 'theme.toml'))).not.toThrow();
-    expect(() => readFileSync(join(dir, 'permissions.toml'))).not.toThrow();
-    expect(() => readFileSync(join(dir, 'links.toml'))).not.toThrow();
-    expect(() => readFileSync(join(dir, '.env'))).not.toThrow();
+    expect(() => readFileSync(join(dir, 'config', 'theme.ts'))).not.toThrow();
+    expect(() =>
+      readFileSync(join(dir, 'config', 'permissions.ts')),
+    ).not.toThrow();
+    expect(() => readFileSync(join(dir, 'config', 'links.ts'))).not.toThrow();
+    expect(() => readFileSync(join(dir, 'config', 'env.ts'))).not.toThrow();
     expect(() => readFileSync(join(dir, 'legal', 'privacy.md'))).not.toThrow();
     expect(() => readFileSync(join(dir, 'legal', 'terms.md'))).not.toThrow();
+    expect(() => readFileSync(join(dir, 'AGENTS.md'))).not.toThrow();
   });
 
   test('writes icon placeholder PNGs', () => {
@@ -99,28 +102,29 @@ describe('scaffoldBase', () => {
     expect(darkIcon.length).toBeGreaterThan(100);
   });
 
-  test('permissions.toml is all-commented (no active keys)', () => {
+  test('config/*.ts are typed via `satisfies` from flutter-tsx/config', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const content = readFileSync(join(dir, 'permissions.toml'), 'utf-8');
-    for (const line of content.split('\n')) {
-      const trimmed = line.trim();
-      if (trimmed.includes('=') && !trimmed.startsWith('#')) {
-        throw new Error(`Unexpected active permission key: ${line}`);
-      }
+    for (const [file, type] of [
+      ['theme.ts', 'Theme'],
+      ['permissions.ts', 'Permissions'],
+      ['links.ts', 'Links'],
+      ['env.ts', 'EnvConfig'],
+    ] as const) {
+      const content = readFileSync(join(dir, 'config', file), 'utf-8');
+      expect(content).toContain(
+        `import type { ${type} } from 'flutter-tsx/config'`,
+      );
+      expect(content).toContain(`satisfies ${type}`);
     }
   });
 
-  test('links.toml is all-commented (no active keys)', () => {
+  test('AGENTS.md guides AI assistants (write TSX, not Dart)', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const content = readFileSync(join(dir, 'links.toml'), 'utf-8');
-    for (const line of content.split('\n')) {
-      const trimmed = line.trim();
-      if (trimmed.includes('=') && !trimmed.startsWith('#')) {
-        throw new Error(`Unexpected active links key: ${line}`);
-      }
-    }
+    const content = readFileSync(join(dir, 'AGENTS.md'), 'utf-8');
+    expect(content).toContain('TSX');
+    expect(content).toContain('.fsx/');
   });
 
   test('legal stubs contain TODO marker', () => {
@@ -132,10 +136,10 @@ describe('scaffoldBase', () => {
     expect(terms).toContain('TODO');
   });
 
-  test('theme.toml has primary color', () => {
+  test('config/theme.ts has a primary brand color', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const content = readFileSync(join(dir, 'theme.toml'), 'utf-8');
+    const content = readFileSync(join(dir, 'config', 'theme.ts'), 'utf-8');
     expect(content).toContain('primary');
     expect(content).toContain('#54a4ff');
   });
@@ -158,9 +162,9 @@ describe('scaffoldBase', () => {
   test('is idempotent — re-running does not duplicate content', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const themeFirst = readFileSync(join(dir, 'theme.toml'), 'utf-8');
+    const themeFirst = readFileSync(join(dir, 'config', 'theme.ts'), 'utf-8');
     scaffoldBase(dir);
-    const themeSecond = readFileSync(join(dir, 'theme.toml'), 'utf-8');
+    const themeSecond = readFileSync(join(dir, 'config', 'theme.ts'), 'utf-8');
     expect(themeFirst).toBe(themeSecond);
   });
 });

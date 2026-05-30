@@ -14,30 +14,67 @@ export interface SkeletonDef {
 // Base file contents
 // ---------------------------------------------------------------------------
 
-const THEME_TOML = `# theme.toml — brand colors
-# Change primary to your brand color; fsx dev generates the full Material 3 theme.
-primary = "#54a4ff"
-# secondary = "#a78bfa"
-# tertiary = "#7ee787"
+const CONFIG_THEME_TS = `import type { Theme } from 'flutter-tsx/config';
+
+// Brand colors → a full Material 3 theme is generated and applied to your
+// MaterialApp. A single primary color seeds the whole scheme.
+export default {
+  light: { primary: '#54a4ff' },
+  // dark: { primary: '#0d1117' },
+} satisfies Theme;
 `;
 
-const PERMISSIONS_TOML = `# permissions.toml — uncomment what your app needs
-# camera = "Scan QR codes"
-# microphone = "Voice notes"
-# location = "Show nearby items"
-# photos = "Save images to your photo library"
-# contacts = "Invite friends from your contacts"
-# notifications = "Reminders for due tasks"
-# face_id = "Unlock the app with Face ID"
+const CONFIG_PERMISSIONS_TS = `import type { Permissions } from 'flutter-tsx/config';
+
+// Permissions are inferred from the hooks you use (e.g. useCamera() → camera),
+// so most apps need nothing here. Add an entry only to customize the iOS usage
+// description shown in the system prompt.
+export default {
+  // camera: 'Scan QR codes in the app.',
+} satisfies Permissions;
 `;
 
-const LINKS_TOML = `# links.toml — deep links + universal links
-# scheme = "myapp"                         # myapp://...
-# domains = ["myapp.com", "app.myapp.com"] # https://... universal links
+const CONFIG_LINKS_TS = `import type { Links } from 'flutter-tsx/config';
+
+// Deep links + universal/app links — one declaration, both platforms.
+export default {
+  // scheme: 'myapp',              // myapp://...
+  // domains: ['app.example.com'], // https://... universal links
+} satisfies Links;
 `;
 
-const DOT_ENV = `# Build-time env vars — values become process.env.* at compile time.
-# API_BASE_URL=https://staging.api.example.com
+const CONFIG_ENV_TS = `import type { EnvConfig } from 'flutter-tsx/config';
+
+// Build-time values → passed to the app as --dart-define. Because this is
+// TypeScript, you can read process.env here for secrets and provide defaults.
+export default {
+  // API_URL: process.env.API_URL ?? 'https://api.example.com',
+} satisfies EnvConfig;
+`;
+
+const AGENTS_MD = `# Working in this project (for AI assistants)
+
+This is a **Flutter.tsx** app: you write **TSX**, and \`fsx dev\` transpiles it to
+Dart and runs Flutter. Follow these rules:
+
+- **Write TSX, never Dart.** Widgets and hooks come from \`flutter-tsx\`
+  (\`import { Scaffold, Column, Text, useState } from 'flutter-tsx'\`). App code
+  lives in \`src/\`.
+- **Never edit generated output.** \`.fsx/\` (the generated Flutter project,
+  including \`lib/*.dart\`) is produced by the tool — changes there are
+  overwritten. Never hand-edit \`ios/\`, \`android/\`, \`Info.plist\`,
+  \`AndroidManifest.xml\`, etc.
+- **Config is typed TypeScript** in \`config/*.ts\` (\`satisfies\` a type from
+  \`flutter-tsx/config\`): \`config/app.ts\` (identity), \`config/theme.ts\`,
+  \`config/links.ts\`, \`config/env.ts\`, \`config/permissions.ts\`,
+  \`config/release.ts\`. Edit these, not native files.
+- **Permissions are inferred** from the hooks you use (\`useCamera()\` adds the
+  camera permission automatically). \`config/permissions.ts\` is only for custom
+  usage strings.
+- **Assets are semantic files**: app icon at \`icons/icon.png\`, translations in
+  \`locales/*.json\` (read via \`const t = useTranslations()\`), legal docs in
+  \`legal/\`.
+- **Run it:** \`bun install\` then \`bun run dev\`.
 `;
 
 const PRIVACY_MD = `# Privacy Policy
@@ -791,12 +828,16 @@ const writeIfAbsent = (filePath: string, content: string | Buffer): void => {
 export const scaffoldBase = (projectDir: string): void => {
   const TEMPLATES_DIR = join(import.meta.dir, '../templates');
 
-  writeIfAbsent(join(projectDir, 'theme.toml'), THEME_TOML);
-  writeIfAbsent(join(projectDir, 'permissions.toml'), PERMISSIONS_TOML);
-  writeIfAbsent(join(projectDir, 'links.toml'), LINKS_TOML);
-  writeIfAbsent(join(projectDir, '.env'), DOT_ENV);
+  writeIfAbsent(join(projectDir, 'config', 'theme.ts'), CONFIG_THEME_TS);
+  writeIfAbsent(
+    join(projectDir, 'config', 'permissions.ts'),
+    CONFIG_PERMISSIONS_TS,
+  );
+  writeIfAbsent(join(projectDir, 'config', 'links.ts'), CONFIG_LINKS_TS);
+  writeIfAbsent(join(projectDir, 'config', 'env.ts'), CONFIG_ENV_TS);
   writeIfAbsent(join(projectDir, 'legal', 'privacy.md'), PRIVACY_MD);
   writeIfAbsent(join(projectDir, 'legal', 'terms.md'), TERMS_MD);
+  writeIfAbsent(join(projectDir, 'AGENTS.md'), AGENTS_MD);
   writeIfAbsent(join(projectDir, '.prettierrc'), PRETTIER_RC);
   writeIfAbsent(join(projectDir, 'eslint.config.js'), ESLINT_CONFIG_JS);
 
