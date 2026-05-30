@@ -24,6 +24,17 @@ describe('userPackageJson — dev script contract', () => {
     expect(pkg.scripts['dev:android']).toBe('fsx dev --target=android');
   });
 
+  test('default `build` script omits --target (same config fallback as dev)', () => {
+    expect(pkg.scripts.build).toBe('fsx build');
+    expect(pkg.scripts.build).not.toContain('--target');
+  });
+
+  test('per-target build scripts pass an explicit --target', () => {
+    expect(pkg.scripts['build:web']).toBe('fsx build --target=web');
+    expect(pkg.scripts['build:ios']).toBe('fsx build --target=ios');
+    expect(pkg.scripts['build:android']).toBe('fsx build --target=android');
+  });
+
   test('depends on flutter-tsx via a caret range', () => {
     expect(pkg.dependencies['flutter-tsx']).toMatch(/^\^/);
   });
