@@ -80,7 +80,9 @@ describe('runInit — interactive prompts', () => {
       // select calls: 1st = target category ('web'), 2nd = template ('blank')
       selectQueue = ['web', 'blank'];
       await runInit(['int-web-app']);
-      expect(existsSync(join(tmp, 'int-web-app', 'app.toml'))).toBe(true);
+      expect(existsSync(join(tmp, 'int-web-app', 'config', 'app.ts'))).toBe(
+        true,
+      );
       expect(existsSync(join(tmp, 'int-web-app', 'src', 'App.tsx'))).toBe(true);
     } finally {
       process.chdir(originalCwd);
@@ -97,7 +99,9 @@ describe('runInit — interactive prompts', () => {
       // select calls: 1st = category ('mobile'), 2nd = platform ('ios'), 3rd = template ('tabs')
       selectQueue = ['mobile', 'ios', 'tabs'];
       await runInit(['int-mobile-app']);
-      expect(existsSync(join(tmp, 'int-mobile-app', 'app.toml'))).toBe(true);
+      expect(existsSync(join(tmp, 'int-mobile-app', 'config', 'app.ts'))).toBe(
+        true,
+      );
     } finally {
       process.chdir(originalCwd);
       rmSync(tmp, { recursive: true });
@@ -113,7 +117,9 @@ describe('runInit — interactive prompts', () => {
       // select calls: 1st = category ('desktop'), 2nd = platform ('macos'), 3rd = template ('tray')
       selectQueue = ['desktop', 'macos', 'tray'];
       await runInit(['int-desktop-app']);
-      expect(existsSync(join(tmp, 'int-desktop-app', 'app.toml'))).toBe(true);
+      expect(existsSync(join(tmp, 'int-desktop-app', 'config', 'app.ts'))).toBe(
+        true,
+      );
     } finally {
       process.chdir(originalCwd);
       rmSync(tmp, { recursive: true });

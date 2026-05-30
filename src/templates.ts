@@ -1,24 +1,14 @@
-export const appToml = (
+export const appConfig = (
   appName: string,
   bundleId: string,
   target = 'web',
-): string => `# flutter.tsx configuration
-name = "${appName}"
-bundleId = "${bundleId}"
-target = "${target}"
+): string => `import { defineConfig } from 'flutter-tsx/config';
 
-# Flutter version constraint
-flutterVersion = ">=3.0.0"
-
-# Source files to watch
-watch = ["src/**/*.tsx"]
-
-# Output directory for generated Dart files
-outDir = ".fsx/flutter/lib"
-
-# Extra Flutter pub dependencies
-# [dependencies]
-# http = "^1.2.0"
+export default defineConfig({
+  name: '${appName}',
+  bundleId: '${bundleId}',
+  target: '${target}',
+});
 `;
 
 export const userPackageJson = (appName: string): string => {
@@ -58,7 +48,7 @@ export const userTsconfig = (): string => {
       skipLibCheck: true,
       noEmit: true,
     },
-    include: ['src/**/*'],
+    include: ['src/**/*', 'config/**/*'],
     exclude: ['node_modules'],
   };
   return JSON.stringify(config, null, 2) + '\n';

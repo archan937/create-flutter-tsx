@@ -11,7 +11,7 @@ import {
   targetCategory,
 } from './scaffold.js';
 import {
-  appToml,
+  appConfig,
   gitignore,
   userPackageJson,
   userTsconfig,
@@ -38,6 +38,7 @@ const writeProject = (
   const cat: TargetCategory = targetCategory(target);
 
   mkdirSync(join(projectDir, 'tests'), { recursive: true });
+  mkdirSync(join(projectDir, 'config'), { recursive: true });
 
   // Surface defaults + skeleton src/
   scaffoldBase(projectDir);
@@ -45,8 +46,8 @@ const writeProject = (
 
   // Core project files
   writeFileSync(
-    join(projectDir, 'app.toml'),
-    appToml(name, bundleId, target),
+    join(projectDir, 'config', 'app.ts'),
+    appConfig(name, bundleId, target),
     'utf-8',
   );
   writeFileSync(

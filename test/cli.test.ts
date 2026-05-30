@@ -50,7 +50,7 @@ describe('runInit — non-interactive mode', () => {
     }
 
     // Core project files
-    expect(existsSync(join(dir, 'app.toml'))).toBe(true);
+    expect(existsSync(join(dir, 'config', 'app.ts'))).toBe(true);
     expect(existsSync(join(dir, 'package.json'))).toBe(true);
     expect(existsSync(join(dir, 'tsconfig.json'))).toBe(true);
     expect(existsSync(join(dir, '.gitignore'))).toBe(true);
@@ -67,7 +67,7 @@ describe('runInit — non-interactive mode', () => {
     rmSync(tmp, { recursive: true });
   });
 
-  test('app.toml contains bundleId and target', async () => {
+  test('config/app.ts contains bundleId and target', async () => {
     const tmp = mkTmp();
     const name = 'my-app';
     const originalCwd = process.cwd();
@@ -84,9 +84,13 @@ describe('runInit — non-interactive mode', () => {
       process.chdir(originalCwd);
     }
 
-    const toml = readFileSync(join(tmp, name, 'app.toml'), 'utf-8');
-    expect(toml).toContain('com.test.myapp');
-    expect(toml).toContain('ios');
+    const appConfigTs = readFileSync(
+      join(tmp, name, 'config', 'app.ts'),
+      'utf-8',
+    );
+    expect(appConfigTs).toContain("from 'flutter-tsx/config'");
+    expect(appConfigTs).toContain('com.test.myapp');
+    expect(appConfigTs).toContain('ios');
 
     rmSync(tmp, { recursive: true });
   });
@@ -209,7 +213,9 @@ describe('runInit — non-interactive mode', () => {
       expect(warnCalls.some((c) => String(c).includes('already exists'))).toBe(
         true,
       );
-      expect(existsSync(join(tmp, 'pre-existing', 'app.toml'))).toBe(true);
+      expect(existsSync(join(tmp, 'pre-existing', 'config', 'app.ts'))).toBe(
+        true,
+      );
     } finally {
       process.chdir(originalCwd);
       rmSync(tmp, { recursive: true });

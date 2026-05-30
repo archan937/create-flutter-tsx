@@ -13,7 +13,7 @@ export {
   targetCategory,
 } from './scaffold.js';
 export {
-  appToml,
+  appConfig,
   gitignore,
   userPackageJson,
   userTsconfig,
