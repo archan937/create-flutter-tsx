@@ -3,7 +3,7 @@
 Scaffold a new [Flutter.tsx](https://www.npmjs.com/package/flutter-tsx) project — write your app in TSX, ship it everywhere Flutter runs.
 
 ```sh
-npm create flutter-tsx@latest my-app
+bun create flutter-tsx my-app
 ```
 
 `create-flutter-tsx` runs a short interview (target → app kind), then lands a working, themed, internationalized project on disk — every reusable surface seeded and ready for `bun run dev`.
@@ -14,10 +14,10 @@ npm create flutter-tsx@latest my-app
 
 ```sh
 # interactive
-npm create flutter-tsx@latest my-app
+bun create flutter-tsx my-app
 
 # or non-interactive (CI-safe — all prompts skipped)
-npm create flutter-tsx@latest my-app -- \
+bun create flutter-tsx my-app \
   --bundleId=com.example.myapp \
   --target=ios \
   --template=tabs
@@ -27,11 +27,10 @@ bun install
 bun run dev
 ```
 
-Works with any package manager that supports the `create-*` convention:
+Other package managers work too via the `create-*` convention:
 
 ```sh
-npm create flutter-tsx@latest my-app
-bun create flutter-tsx my-app
+npm create flutter-tsx@latest my-app   # note the `--` before flags: … my-app -- --target=ios
 pnpm create flutter-tsx my-app
 yarn create flutter-tsx my-app
 ```
@@ -168,7 +167,7 @@ Run the local build end-to-end:
 
 ```sh
 bun run build
-node dist/bin/create-flutter-tsx.js my-app --target=web --template=dashboard --bundleId=com.example.app
+bun dist/bin/create-flutter-tsx.js my-app --target=web --template=dashboard --bundleId=com.example.app
 ```
 
 ## License
