@@ -1,0 +1,5 @@
+# Normalize line endings to LF on every platform so formatting/lint
+# (prettier via eslint) is consistent across macOS/Linux/Windows checkouts.
+* text=auto eol=lf
+*.png binary
+*.ico binary
