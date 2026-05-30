@@ -1,4 +1,3 @@
-import { runInit } from '@src/index.js';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import {
   existsSync,
@@ -10,6 +9,8 @@ import {
 } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
+
+import { runInit } from '@src/index.js';
 
 // Capture process.exit so tests don't actually terminate
 const originalExit = process.exit;

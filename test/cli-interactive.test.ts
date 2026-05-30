@@ -3,11 +3,12 @@
 // before static imports are evaluated, intercepting the module before
 // init.ts binds to it.
 
-import { runInit } from '@src/index.js';
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { existsSync, mkdtempSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
+
+import { runInit } from '@src/index.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

@@ -29,7 +29,13 @@ export default [
       'simple-import-sort/imports': [
         'error',
         {
-          groups: [['^\\u0000'], ['^node:'], ['^'], ['^\\.']],
+          groups: [
+            ['^\\u0000'],
+            ['^node:'],
+            ['^@?(?!(src))\\w'],
+            ['^'],
+            ['^\\.'],
+          ],
         },
       ],
     },

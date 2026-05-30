@@ -1,3 +1,8 @@
+import { describe, expect, test } from 'bun:test';
+import { mkdtempSync, readFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+
 import {
   scaffoldBase,
   scaffoldSkeleton,
@@ -6,10 +11,6 @@ import {
   type TargetCategory,
   targetCategory,
 } from '@src/scaffold.js';
-import { describe, expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
 
 const mkTmp = (): string => mkdtempSync(join(tmpdir(), 'fsx-scaffold-'));
 
