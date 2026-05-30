@@ -207,7 +207,7 @@ export const SettingsScreen = () => (
 `;
 
 const MOBILE_DRAWER_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Drawer, DrawerHeader, ListTile, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+import { Drawer, DrawerHeader, ListTile, ListView, MaterialApp, Scaffold, Text } from 'flutter-tsx';
 
 export const MainApp = () => {
   const [page, setPage] = useState('home');
@@ -215,11 +215,13 @@ export const MainApp = () => {
     <MaterialApp title="My App">
       <Scaffold>
         <Drawer>
-          <DrawerHeader>
-            <Text>Menu</Text>
-          </DrawerHeader>
-          <ListTile title="Home" onTap={() => setPage('home')} />
-          <ListTile title="About" onTap={() => setPage('about')} />
+          <ListView>
+            <DrawerHeader>
+              <Text>Menu</Text>
+            </DrawerHeader>
+            <ListTile title="Home" onTap={() => setPage('home')} />
+            <ListTile title="About" onTap={() => setPage('about')} />
+          </ListView>
         </Drawer>
         <Text>Current page: {page}</Text>
       </Scaffold>
@@ -543,16 +545,20 @@ export const MainApp = () => (
     <Scaffold>
       <Column>
         <Container>
-          <Text>Hero — Your tagline here</Text>
-          <Text>Start for free today</Text>
+          <Column>
+            <Text>Hero — Your tagline here</Text>
+            <Text>Start for free today</Text>
+          </Column>
         </Container>
         <Container>
-          <Text>Features</Text>
-          <Row>
-            <Text>Fast</Text>
-            <Text>Reliable</Text>
-            <Text>Beautiful</Text>
-          </Row>
+          <Column>
+            <Text>Features</Text>
+            <Row>
+              <Text>Fast</Text>
+              <Text>Reliable</Text>
+              <Text>Beautiful</Text>
+            </Row>
+          </Column>
         </Container>
         <Container>
           <Text>Pricing</Text>
@@ -576,8 +582,10 @@ export const MainApp = () => (
       <Column>
         {SECTIONS.map((section) => (
           <Container key={section}>
-            <Text>{section}</Text>
-            <Text>Content for {section}</Text>
+            <Column>
+              <Text>{section}</Text>
+              <Text>Content for {section}</Text>
+            </Column>
           </Container>
         ))}
       </Column>
