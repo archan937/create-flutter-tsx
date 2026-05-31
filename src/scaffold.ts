@@ -146,37 +146,20 @@ export const MainApp = () => {
 };
 `;
 
-const MOBILE_TABS_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Column, ElevatedButton, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
-import { DiscoverScreen } from './screens/DiscoverScreen.js';
-import { HomeScreen } from './screens/HomeScreen.js';
-import { SettingsScreen } from './screens/SettingsScreen.js';
+const MOBILE_TABS_APP_TSX = `import { MaterialApp, TabView } from 'flutter-tsx';
+import { DiscoverScreen } from './screens/DiscoverScreen';
+import { HomeScreen } from './screens/HomeScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
 
-export const MainApp = () => {
-  const [tab, setTab] = useState(0);
-  return (
-    <MaterialApp title="My App">
-      <Scaffold>
-        <Column>
-          {tab === 0 && <HomeScreen />}
-          {tab === 1 && <DiscoverScreen />}
-          {tab === 2 && <SettingsScreen />}
-          <Row>
-            <ElevatedButton onClick={() => setTab(0)}>
-              <Text>Home</Text>
-            </ElevatedButton>
-            <ElevatedButton onClick={() => setTab(1)}>
-              <Text>Discover</Text>
-            </ElevatedButton>
-            <ElevatedButton onClick={() => setTab(2)}>
-              <Text>Settings</Text>
-            </ElevatedButton>
-          </Row>
-        </Column>
-      </Scaffold>
-    </MaterialApp>
-  );
-};
+export const MainApp = () => (
+  <MaterialApp title="My App">
+    <TabView tabs={[
+      { label: 'Home', icon: 'home', screen: <HomeScreen /> },
+      { label: 'Discover', icon: 'explore', screen: <DiscoverScreen /> },
+      { label: 'Settings', icon: 'settings', screen: <SettingsScreen /> },
+    ]} />
+  </MaterialApp>
+);
 `;
 
 const MOBILE_HOME_SCREEN_TSX = `import { Center, Text } from 'flutter-tsx';
@@ -206,24 +189,27 @@ export const SettingsScreen = () => (
 );
 `;
 
+// Hamburger-drawer app: the AppBar shows the hamburger automatically because the
+// Scaffold has a drawer. Tapping a drawer item switches the body content.
 const MOBILE_DRAWER_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Drawer, DrawerHeader, ListTile, ListView, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+import { AppBar, Center, Drawer, DrawerHeader, ListTile, ListView, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+
+const PAGES = ['Home', 'Profile', 'Settings'];
 
 export const MainApp = () => {
-  const [page, setPage] = useState('home');
+  const [page, setPage] = useState(0);
   return (
-    <MaterialApp title="My App">
-      <Scaffold>
+    <MaterialApp title="Drawer App">
+      <Scaffold appBar={<AppBar title={<Text>Drawer App</Text>} />}>
         <Drawer>
           <ListView>
-            <DrawerHeader>
-              <Text>Menu</Text>
-            </DrawerHeader>
-            <ListTile title="Home" onTap={() => setPage('home')} />
-            <ListTile title="About" onTap={() => setPage('about')} />
+            <DrawerHeader><Text>Menu</Text></DrawerHeader>
+            <ListTile title="Home" onTap={() => setPage(0)} />
+            <ListTile title="Profile" onTap={() => setPage(1)} />
+            <ListTile title="Settings" onTap={() => setPage(2)} />
           </ListView>
         </Drawer>
-        <Text>Current page: {page}</Text>
+        <Center><Text>{PAGES[page]}</Text></Center>
       </Scaffold>
     </MaterialApp>
   );
@@ -271,20 +257,29 @@ export const ItemDetail = () => {
 };
 `;
 
-const MOBILE_FEED_APP_TSX = `import { Card, ListView, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+// Live feed: useAsync + fetch loads a JSON list, rendered as cards. data.json is
+// the decoded body (dynamic), so post['title'] reads each item's field.
+const MOBILE_FEED_APP_TSX = `import { AppBar, Card, Center, CircularProgressIndicator, ListView, MaterialApp, Scaffold, Text, useAsync, fetch } from 'flutter-tsx';
 
-const POSTS = ['Post 1', 'Post 2', 'Post 3', 'Post 4', 'Post 5'];
+export const FeedScreen = () => {
+  const { data, loading, error } = useAsync(() => fetch('https://jsonplaceholder.typicode.com/posts'));
+  if (loading) return <Center><CircularProgressIndicator /></Center>;
+  if (error) return <Center><Text>Failed to load feed</Text></Center>;
+  return (
+    <ListView>
+      {data.json.map((post) => (
+        <Card key={post}>
+          <Text>{post['title']}</Text>
+        </Card>
+      ))}
+    </ListView>
+  );
+};
 
 export const MainApp = () => (
   <MaterialApp title="Feed">
-    <Scaffold>
-      <ListView>
-        {POSTS.map((post) => (
-          <Card key={post}>
-            <Text>{post}</Text>
-          </Card>
-        ))}
-      </ListView>
+    <Scaffold appBar={<AppBar title={<Text>Feed</Text>} />}>
+      <FeedScreen />
     </Scaffold>
   </MaterialApp>
 );
@@ -319,23 +314,31 @@ export const MainApp = () => {
 };
 `;
 
-const MOBILE_AUTH_TABS_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Center, Column, ElevatedButton, MaterialApp, Row, Scaffold, Text, TextField } from 'flutter-tsx';
+// Auth gate backed by a session store: while logged out, show the login screen;
+// once useAuth().login() flips the store, the app rebuilds into a TabView shell.
+const MOBILE_AUTH_STORE_TSX = `import { createStore } from 'flutter-tsx';
+
+export const useAuth = createStore((set) => ({
+  loggedIn: false,
+  login: () => set(() => ({ loggedIn: true })),
+  logout: () => set(() => ({ loggedIn: false })),
+}));
+`;
+
+const MOBILE_AUTH_TABS_APP_TSX = `import { Center, Column, ElevatedButton, MaterialApp, Scaffold, TabView, Text, TextField } from 'flutter-tsx';
+import { useAuth } from './stores/auth';
 
 export const MainApp = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [tab, setTab] = useState(0);
+  const { loggedIn, login } = useAuth();
   if (!loggedIn) {
     return (
-      <MaterialApp title="My App">
+      <MaterialApp title="Sign in">
         <Scaffold>
           <Center>
             <Column>
               <TextField label="Email" />
               <TextField label="Password" />
-              <ElevatedButton onClick={() => setLoggedIn(true)}>
-                <Text>Log In</Text>
-              </ElevatedButton>
+              <ElevatedButton onClick={login}><Text>Log In</Text></ElevatedButton>
             </Column>
           </Center>
         </Scaffold>
@@ -344,23 +347,75 @@ export const MainApp = () => {
   }
   return (
     <MaterialApp title="My App">
-      <Scaffold>
-        <Column>
-          {tab === 0 && <Center><Text>Home</Text></Center>}
-          {tab === 1 && <Center><Text>Profile</Text></Center>}
-          <Row>
-            <ElevatedButton onClick={() => setTab(0)}>
-              <Text>Home</Text>
-            </ElevatedButton>
-            <ElevatedButton onClick={() => setTab(1)}>
-              <Text>Profile</Text>
-            </ElevatedButton>
-          </Row>
-        </Column>
-      </Scaffold>
+      <TabView tabs={[
+        { label: 'Home', icon: 'home', screen: <Center><Text>Home</Text></Center> },
+        { label: 'Profile', icon: 'person', screen: <Center><Text>Profile</Text></Center> },
+      ]} />
     </MaterialApp>
   );
 };
+`;
+
+// --- Mobile flagship: a real-app starter ------------------------------------
+// Exercises the full stack: a createStore session store, useAsync + fetch for
+// remote data, a TabView shell, and a modal sheet — the setup a real product
+// would start from.
+
+const STARTER_SESSION_STORE_TSX = `import { createStore } from 'flutter-tsx';
+
+// Global session store → generates an idiomatic ChangeNotifier, provided at the
+// app root and read in screens via useSession().
+export const useSession = createStore((set) => ({
+  name: 'Guest',
+  loggedIn: false,
+  login: () => set(() => ({ name: 'Ada Lovelace', loggedIn: true })),
+  logout: () => set(() => ({ name: 'Guest', loggedIn: false })),
+}));
+`;
+
+const STARTER_FEED_SCREEN_TSX = `import { Center, CircularProgressIndicator, Text, useAsync, fetch } from 'flutter-tsx';
+
+// Remote data via useAsync + fetch → compiles to a FutureBuilder.
+export const FeedScreen = () => {
+  const { data, loading, error } = useAsync(() => fetch('https://jsonplaceholder.typicode.com/todos/1'));
+  if (loading) return <Center><CircularProgressIndicator /></Center>;
+  if (error) return <Center><Text>Something went wrong</Text></Center>;
+  return <Center><Text>{data.body}</Text></Center>;
+};
+`;
+
+const STARTER_PROFILE_SCREEN_TSX = `import { Center, Column, ElevatedButton, Text, showSheet } from 'flutter-tsx';
+import { useSession } from '../stores/session';
+
+export const ProfileScreen = () => {
+  const { name, login, logout } = useSession();
+  return (
+    <Center>
+      <Column>
+        <Text>{name}</Text>
+        <ElevatedButton onClick={login}><Text>Log in</Text></ElevatedButton>
+        <ElevatedButton onClick={logout}><Text>Log out</Text></ElevatedButton>
+        <ElevatedButton onClick={() => showSheet(<Text>flutter-tsx starter</Text>)}>
+          <Text>About</Text>
+        </ElevatedButton>
+      </Column>
+    </Center>
+  );
+};
+`;
+
+const STARTER_APP_TSX = `import { MaterialApp, TabView } from 'flutter-tsx';
+import { FeedScreen } from './screens/FeedScreen';
+import { ProfileScreen } from './screens/ProfileScreen';
+
+export const MainApp = () => (
+  <MaterialApp title="Starter">
+    <TabView tabs={[
+      { label: 'Feed', icon: 'dynamic_feed', screen: <FeedScreen /> },
+      { label: 'Profile', icon: 'person', screen: <ProfileScreen /> },
+    ]} />
+  </MaterialApp>
+);
 `;
 
 // --- Desktop skeletons ------------------------------------------------------
@@ -377,18 +432,49 @@ export const MainApp = () => (
 );
 `;
 
-const DESKTOP_TRAY_APP_TSX = `// src/App.tsx — menubar / system-tray app
-// Uses the tray_manager plugin. Run: dart pub add tray_manager
-import { Container, MaterialApp } from 'flutter-tsx';
+// Menubar / system-tray app. config/tray.ts turns on tray mode: fsx emits a
+// main.dart bootstrap (window_manager + tray_manager) with a Show/Hide/Quit
+// menu. The TSX below is just the window UI — here a store-backed dashboard.
+const DESKTOP_TRAY_APP_TSX = `import { AppBar, Center, Column, ElevatedButton, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+import { useStats } from './stores/stats';
 
-// useTray hook (tray_manager): registers a system-tray icon on startup
-// and shows a popup menu with Quit action.
-// See: https://pub.dev/packages/tray_manager
-export const MainApp = () => (
-  <MaterialApp title="Tray App">
-    <Container />
-  </MaterialApp>
-);
+export const MainApp = () => {
+  const { count, bump } = useStats();
+  return (
+    <MaterialApp title="Tray App">
+      <Scaffold appBar={<AppBar title={<Text>Tray App</Text>} />}>
+        <Center>
+          <Column>
+            <Text>Running in the menu bar — close the window, reopen from the tray.</Text>
+            <Text>Clicks: {count}</Text>
+            <ElevatedButton onClick={bump}><Text>Bump</Text></ElevatedButton>
+          </Column>
+        </Center>
+      </Scaffold>
+    </MaterialApp>
+  );
+};
+`;
+
+const DESKTOP_TRAY_STATS_STORE_TSX = `import { createStore } from 'flutter-tsx';
+
+export const useStats = createStore((set) => ({
+  count: 0,
+  bump: () => set((s) => ({ count: s.count + 1 })),
+}));
+`;
+
+const DESKTOP_TRAY_CONFIG_TS = `import type { TrayConfig } from 'flutter-tsx/config';
+
+// Presence of this file enables system-tray / menubar mode.
+export default {
+  tooltip: 'Tray App',
+  menu: [
+    { label: 'Show', action: 'show' },
+    { label: 'Hide', action: 'hide' },
+    { label: 'Quit', action: 'quit' },
+  ],
+} satisfies TrayConfig;
 `;
 
 const DESKTOP_SIDEBAR_APP_TSX = `import { useState } from 'flutter-tsx';
@@ -523,32 +609,33 @@ export const MainApp = () => (
 );
 `;
 
-const WEB_DASHBOARD_APP_TSX = `import { AppBar, Column, Container, MaterialApp, Row, Scaffold, Text } from 'flutter-tsx';
+// Dashboard that loads live data: a sidebar + a content pane whose stat comes
+// from useAsync + fetch (data.json is the decoded body).
+const WEB_DASHBOARD_APP_TSX = `import { AppBar, Center, CircularProgressIndicator, Column, Container, MaterialApp, Row, Scaffold, Text, useAsync, fetch } from 'flutter-tsx';
 
-const STATS = ['Users: 1,234', 'Revenue: $5,678', 'Orders: 910'];
+export const Dashboard = () => {
+  const { data, loading, error } = useAsync(() => fetch('https://jsonplaceholder.typicode.com/users'));
+  if (loading) return <Center><CircularProgressIndicator /></Center>;
+  if (error) return <Center><Text>Failed to load</Text></Center>;
+  return (
+    <Row>
+      <Container width={200}>
+        <Column>
+          <Text>Overview</Text>
+          <Text>Reports</Text>
+        </Column>
+      </Container>
+      <Column>
+        <Text>Active users: {data.json.length}</Text>
+      </Column>
+    </Row>
+  );
+};
 
 export const MainApp = () => (
   <MaterialApp title="Dashboard">
-    <Scaffold>
-      <AppBar title="Dashboard" />
-      <Row>
-        <Container width={200}>
-          <Column>
-            <Text>Sidebar</Text>
-            <Text>Overview</Text>
-            <Text>Reports</Text>
-          </Column>
-        </Container>
-        <Column>
-          <Row>
-            {STATS.map((stat) => (
-              <Container key={stat}>
-                <Text>{stat}</Text>
-              </Container>
-            ))}
-          </Row>
-        </Column>
-      </Row>
+    <Scaffold appBar={<AppBar title={<Text>Dashboard</Text>} />}>
+      <Dashboard />
     </Scaffold>
   </MaterialApp>
 );
@@ -610,11 +697,22 @@ export const MainApp = () => (
 );
 `;
 
-const WEB_AUTH_DASH_APP_TSX = `import { useState } from 'flutter-tsx';
-import { Center, Column, Container, ElevatedButton, MaterialApp, Row, Scaffold, Text, TextField } from 'flutter-tsx';
+// Auth gate backed by a session store: logged out → sign-in form; once
+// useAuth().login() flips the store, the same view shows the dashboard.
+const WEB_AUTH_STORE_TSX = `import { createStore } from 'flutter-tsx';
+
+export const useAuth = createStore((set) => ({
+  loggedIn: false,
+  login: () => set(() => ({ loggedIn: true })),
+  logout: () => set(() => ({ loggedIn: false })),
+}));
+`;
+
+const WEB_AUTH_DASH_APP_TSX = `import { Center, Column, Container, ElevatedButton, MaterialApp, Row, Scaffold, Text, TextField } from 'flutter-tsx';
+import { useAuth } from './stores/auth';
 
 export const MainApp = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const { loggedIn, login } = useAuth();
   return (
     <MaterialApp title="My App">
       <Scaffold>
@@ -622,7 +720,8 @@ export const MainApp = () => {
           <Row>
             <Container width={200}>
               <Column>
-                <Text>Sidebar</Text>
+                <Text>Overview</Text>
+                <Text>Reports</Text>
               </Column>
             </Container>
             <Column>
@@ -635,14 +734,81 @@ export const MainApp = () => {
               <Text>Sign In</Text>
               <TextField label="Email" />
               <TextField label="Password" />
-              <ElevatedButton onClick={() => setLoggedIn(true)}>
-                <Text>Log In</Text>
-              </ElevatedButton>
+              <ElevatedButton onClick={login}><Text>Log In</Text></ElevatedButton>
             </Column>
           </Center>
         )}
       </Scaffold>
     </MaterialApp>
+  );
+};
+`;
+
+// --- Web flagship: a real multi-route app -----------------------------------
+// File-based routing (real URLs), a session store, and remote data — the setup
+// a real web product would start from. Capabilities are spread across routes,
+// the way a multi-page app actually grows.
+
+const WEB_STARTER_APP_TSX = `import { MaterialApp } from 'flutter-tsx';
+
+// routes="./routes" → file-based routing → GoRouter (real browser URLs).
+export const MainApp = () => <MaterialApp title="Dashboard" routes="./routes" />;
+`;
+
+const WEB_STARTER_SESSION_STORE_TSX = `import { createStore } from 'flutter-tsx';
+
+export const useSession = createStore((set) => ({
+  user: 'Guest',
+  login: () => set(() => ({ user: 'Ada Lovelace' })),
+}));
+`;
+
+const WEB_STARTER_INDEX_TSX = `import { AppBar, Center, Column, ElevatedButton, Scaffold, Text, useNavigate } from 'flutter-tsx';
+import { useSession } from '../stores/session';
+
+export const Dashboard = () => {
+  const nav = useNavigate();
+  const { user } = useSession();
+  return (
+    <Scaffold>
+      <AppBar title="Dashboard" />
+      <Center>
+        <Column>
+          <Text>Signed in as {user}</Text>
+          <ElevatedButton onClick={() => nav.push('/feed')}><Text>Feed</Text></ElevatedButton>
+          <ElevatedButton onClick={() => nav.push('/profile')}><Text>Profile</Text></ElevatedButton>
+        </Column>
+      </Center>
+    </Scaffold>
+  );
+};
+`;
+
+const WEB_STARTER_FEED_TSX = `import { Center, CircularProgressIndicator, Text, useAsync, fetch } from 'flutter-tsx';
+
+export const Feed = () => {
+  const { data, loading, error } = useAsync(() => fetch('https://jsonplaceholder.typicode.com/posts/1'));
+  if (loading) return <Center><CircularProgressIndicator /></Center>;
+  if (error) return <Center><Text>Something went wrong</Text></Center>;
+  return <Center><Text>{data.body}</Text></Center>;
+};
+`;
+
+const WEB_STARTER_PROFILE_TSX = `import { Center, Column, ElevatedButton, Text, showSheet } from 'flutter-tsx';
+import { useSession } from '../stores/session';
+
+export const Profile = () => {
+  const { user, login } = useSession();
+  return (
+    <Center>
+      <Column>
+        <Text>{user}</Text>
+        <ElevatedButton onClick={login}><Text>Sign in</Text></ElevatedButton>
+        <ElevatedButton onClick={() => showSheet(<Text>flutter-tsx web starter</Text>)}>
+          <Text>About</Text>
+        </ElevatedButton>
+      </Column>
+    </Center>
   );
 };
 `;
@@ -653,6 +819,19 @@ export const MainApp = () => {
 
 export const SKELETON_CATALOG: Record<TargetCategory, SkeletonDef[]> = {
   mobile: [
+    {
+      name: 'starter',
+      label: 'Starter (recommended)',
+      description:
+        'Real-app setup: tabbed shell, a session store, remote data (useAsync + fetch), and a modal sheet',
+      files: {
+        'src/App.tsx': STARTER_APP_TSX,
+        'src/stores/session.tsx': STARTER_SESSION_STORE_TSX,
+        'src/screens/FeedScreen.tsx': STARTER_FEED_SCREEN_TSX,
+        'src/screens/ProfileScreen.tsx': STARTER_PROFILE_SCREEN_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
     {
       name: 'blank',
       label: 'Blank',
@@ -716,9 +895,10 @@ export const SKELETON_CATALOG: Record<TargetCategory, SkeletonDef[]> = {
     {
       name: 'auth-tabs',
       label: 'Auth + Tabs',
-      description: 'Login screen that leads to a bottom nav',
+      description: 'Login screen (session store) that leads to a TabView shell',
       files: {
         'src/App.tsx': MOBILE_AUTH_TABS_APP_TSX,
+        'src/stores/auth.tsx': MOBILE_AUTH_STORE_TSX,
         'locales/en.json': LOCALE_EN_BASIC,
       },
     },
@@ -736,10 +916,12 @@ export const SKELETON_CATALOG: Record<TargetCategory, SkeletonDef[]> = {
     {
       name: 'tray',
       label: 'Tray App',
-      description: 'Menubar / system-tray app',
+      description:
+        'Menubar / system-tray app: window_manager + tray_manager bootstrap, Show/Hide/Quit menu, store-backed window',
       files: {
         'src/App.tsx': DESKTOP_TRAY_APP_TSX,
-        'src/.tray-plugins.json': '["tray_manager"]\n',
+        'src/stores/stats.tsx': DESKTOP_TRAY_STATS_STORE_TSX,
+        'config/tray.ts': DESKTOP_TRAY_CONFIG_TS,
         'locales/en.json': LOCALE_EN_BASIC,
       },
     },
@@ -782,6 +964,20 @@ export const SKELETON_CATALOG: Record<TargetCategory, SkeletonDef[]> = {
   ],
   web: [
     {
+      name: 'starter',
+      label: 'Starter (recommended)',
+      description:
+        'Real multi-route app: file-based routing (real URLs), a session store, remote data (useAsync + fetch), and a modal',
+      files: {
+        'src/App.tsx': WEB_STARTER_APP_TSX,
+        'src/stores/session.tsx': WEB_STARTER_SESSION_STORE_TSX,
+        'src/routes/index.tsx': WEB_STARTER_INDEX_TSX,
+        'src/routes/feed.tsx': WEB_STARTER_FEED_TSX,
+        'src/routes/profile.tsx': WEB_STARTER_PROFILE_TSX,
+        'locales/en.json': LOCALE_EN_BASIC,
+      },
+    },
+    {
       name: 'blank',
       label: 'Blank Page',
       description: 'Single landing page',
@@ -820,9 +1016,10 @@ export const SKELETON_CATALOG: Record<TargetCategory, SkeletonDef[]> = {
     {
       name: 'auth-dash',
       label: 'Auth + Dashboard',
-      description: 'Login screen that leads to a dashboard',
+      description: 'Login screen (session store) that leads to a dashboard',
       files: {
         'src/App.tsx': WEB_AUTH_DASH_APP_TSX,
+        'src/stores/auth.tsx': WEB_AUTH_STORE_TSX,
         'locales/en.json': LOCALE_EN_BASIC,
       },
     },
