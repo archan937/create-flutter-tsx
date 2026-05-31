@@ -135,7 +135,7 @@ export const MainApp = () => {
         <Center>
           <Column>
             <Text>Count: {count}</Text>
-            <ElevatedButton onPressed={() => setCount(count + 1)}>
+            <ElevatedButton onClick={() => setCount(count + 1)}>
               <Text>Tap me</Text>
             </ElevatedButton>
           </Column>
@@ -162,13 +162,13 @@ export const MainApp = () => {
           {tab === 1 && <DiscoverScreen />}
           {tab === 2 && <SettingsScreen />}
           <Row>
-            <ElevatedButton onPressed={() => setTab(0)}>
+            <ElevatedButton onClick={() => setTab(0)}>
               <Text>Home</Text>
             </ElevatedButton>
-            <ElevatedButton onPressed={() => setTab(1)}>
+            <ElevatedButton onClick={() => setTab(1)}>
               <Text>Discover</Text>
             </ElevatedButton>
-            <ElevatedButton onPressed={() => setTab(2)}>
+            <ElevatedButton onClick={() => setTab(2)}>
               <Text>Settings</Text>
             </ElevatedButton>
           </Row>
@@ -230,27 +230,43 @@ export const MainApp = () => {
 };
 `;
 
-const MOBILE_LIST_DETAIL_APP_TSX = `import { useState } from 'flutter-tsx';
-import { ListTile, ListView, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+// File-based routing: the MaterialApp shell points at src/routes/; the list
+// (index) navigates to a detail route that reads the id via useParams.
+const MOBILE_LIST_DETAIL_APP_TSX = `import { MaterialApp } from 'flutter-tsx';
 
-const ITEMS = ['Item 1', 'Item 2', 'Item 3'];
+export const MainApp = () => <MaterialApp title="My App" routes="./routes" />;
+`;
 
-export const MainApp = () => {
-  const [selected, setSelected] = useState<string | null>(null);
+const MOBILE_LIST_DETAIL_INDEX_TSX = `import { AppBar, ListTile, ListView, Scaffold, useNavigate } from 'flutter-tsx';
+
+const ITEMS = ['apple', 'banana', 'cherry'];
+
+export const ItemList = () => {
+  const nav = useNavigate();
   return (
-    <MaterialApp title="My App">
-      <Scaffold>
-        {selected == null ? (
-          <ListView>
-            {ITEMS.map((item) => (
-              <ListTile key={item} title={item} onTap={() => setSelected(item)} />
-            ))}
-          </ListView>
-        ) : (
-          <Text>{selected}</Text>
-        )}
-      </Scaffold>
-    </MaterialApp>
+    <Scaffold>
+      <AppBar title="Items" />
+      <ListView>
+        {ITEMS.map((item) => (
+          <ListTile key={item} title={item} onTap={() => nav.push(\`/items/\${item}\`)} />
+        ))}
+      </ListView>
+    </Scaffold>
+  );
+};
+`;
+
+const MOBILE_LIST_DETAIL_DETAIL_TSX = `import { AppBar, Center, Scaffold, Text, useParams } from 'flutter-tsx';
+
+export const ItemDetail = () => {
+  const id = useParams('id');
+  return (
+    <Scaffold>
+      <AppBar title="Detail" />
+      <Center>
+        <Text>Selected: {id}</Text>
+      </Center>
+    </Scaffold>
   );
 };
 `;
@@ -292,7 +308,7 @@ export const MainApp = () => {
           {step === 1 && <TextField label="Your email" onChanged={(v) => setEmail(v)} />}
           {step === 2 && <Text>Name: {name}, Email: {email}</Text>}
           {step < STEPS.length - 1 && (
-            <ElevatedButton onPressed={() => setStep(step + 1)}>
+            <ElevatedButton onClick={() => setStep(step + 1)}>
               <Text>Next</Text>
             </ElevatedButton>
           )}
@@ -317,7 +333,7 @@ export const MainApp = () => {
             <Column>
               <TextField label="Email" />
               <TextField label="Password" />
-              <ElevatedButton onPressed={() => setLoggedIn(true)}>
+              <ElevatedButton onClick={() => setLoggedIn(true)}>
                 <Text>Log In</Text>
               </ElevatedButton>
             </Column>
@@ -333,10 +349,10 @@ export const MainApp = () => {
           {tab === 0 && <Center><Text>Home</Text></Center>}
           {tab === 1 && <Center><Text>Profile</Text></Center>}
           <Row>
-            <ElevatedButton onPressed={() => setTab(0)}>
+            <ElevatedButton onClick={() => setTab(0)}>
               <Text>Home</Text>
             </ElevatedButton>
-            <ElevatedButton onPressed={() => setTab(1)}>
+            <ElevatedButton onClick={() => setTab(1)}>
               <Text>Profile</Text>
             </ElevatedButton>
           </Row>
@@ -472,13 +488,13 @@ export const MainApp = () => {
       <Scaffold>
         <Column>
           <Row>
-            <ElevatedButton onPressed={() => setTab(0)}>
+            <ElevatedButton onClick={() => setTab(0)}>
               <Text>Document 1</Text>
             </ElevatedButton>
-            <ElevatedButton onPressed={() => setTab(1)}>
+            <ElevatedButton onClick={() => setTab(1)}>
               <Text>Document 2</Text>
             </ElevatedButton>
-            <ElevatedButton onPressed={() => setTab(2)}>
+            <ElevatedButton onClick={() => setTab(2)}>
               <Text>Document 3</Text>
             </ElevatedButton>
           </Row>
@@ -619,7 +635,7 @@ export const MainApp = () => {
               <Text>Sign In</Text>
               <TextField label="Email" />
               <TextField label="Password" />
-              <ElevatedButton onPressed={() => setLoggedIn(true)}>
+              <ElevatedButton onClick={() => setLoggedIn(true)}>
                 <Text>Log In</Text>
               </ElevatedButton>
             </Column>
@@ -670,9 +686,12 @@ export const SKELETON_CATALOG: Record<TargetCategory, SkeletonDef[]> = {
     {
       name: 'list-detail',
       label: 'List + Detail',
-      description: 'Master list that navigates to a detail screen',
+      description:
+        'Master list that navigates to a detail screen (file-based routing)',
       files: {
         'src/App.tsx': MOBILE_LIST_DETAIL_APP_TSX,
+        'src/routes/index.tsx': MOBILE_LIST_DETAIL_INDEX_TSX,
+        'src/routes/items/[id].tsx': MOBILE_LIST_DETAIL_DETAIL_TSX,
         'locales/en.json': LOCALE_EN_BASIC,
       },
     },
