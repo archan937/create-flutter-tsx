@@ -5,6 +5,17 @@ scaffolder) are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to
 [Semantic Versioning](https://semver.org/) (pre-1.0: minor = features, patch = fixes).
 
+## [0.2.2] — 2026-05-31
+
+### Fixed
+
+- **Scaffolded apps were pinned to `flutter-tsx@^0.1.0`.** By semver `^0.1.0`
+  means `>=0.1.0 <0.2.0`, so every freshly created app silently installed
+  flutter-tsx 0.1.0 — missing routing, state, async, tabs, and modals (all
+  shipped in 0.2.0). CI never caught it because it rewrites the dependency to a
+  local `file:` link. The generated `package.json` now pins `^0.2.0`, so all
+  skeletons resolve the latest 0.2.x.
+
 ## [0.2.1] — 2026-05-31
 
 ### Documentation
