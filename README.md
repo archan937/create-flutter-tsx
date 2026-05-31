@@ -67,38 +67,41 @@ The picker is **target-aware** — each target offers the patterns that make sen
 
 ### Mobile (`--target=ios|android`)
 
-| `--template`  | Pattern                                       |
-| ------------- | --------------------------------------------- |
-| `blank`       | Single screen counter with `useState`         |
-| `tabs`        | Bottom navigation across 3 screens            |
-| `drawer`      | Left-side burger drawer navigation            |
-| `list-detail` | Master list that navigates to a detail screen |
-| `feed`        | Scrollable card feed                          |
-| `wizard`      | Multi-step form                               |
-| `auth-tabs`   | Login screen that leads into a tabbed app     |
+| `--template`  | Pattern                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| `starter` ⭐  | **Recommended.** `<TabView>` shell + session store + `useAsync`/`fetch` feed + modal sheet |
+| `blank`       | Single screen counter with `useState`                                                      |
+| `tabs`        | Bottom navigation (`<TabView>`) across 3 screens                                           |
+| `drawer`      | Hamburger drawer that switches content                                                     |
+| `list-detail` | Master list → detail screen (file-based routing + `useNavigate`)                           |
+| `feed`        | Scrollable card feed loaded with `useAsync` + `fetch`                                      |
+| `wizard`      | Multi-step form                                                                            |
+| `auth-tabs`   | Login (session store) → `<TabView>` shell                                                  |
 
 ### Desktop (`--target=macos|windows|linux`)
 
-| `--template`      | Pattern                                              |
-| ----------------- | ---------------------------------------------------- |
-| `blank`           | Single window with a menu bar                        |
-| `tray`            | Menubar / system-tray app (uses `tray_manager`)      |
-| `sidebar`         | Left sidebar with selectable items and a detail pane |
-| `toolbar`         | Top toolbar with a central canvas                    |
-| `three-pane`      | Sidebar + list + content pane                        |
-| `tabbed-document` | Top-level content tabs                               |
+| `--template`      | Pattern                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `tray` ⭐         | **Recommended.** Menubar / system-tray app (`config/tray.ts` → window_manager + tray_manager) + store-backed window |
+| `blank`           | Single window with a menu bar                                                                                       |
+| `sidebar`         | Left sidebar with selectable items and a detail pane                                                                |
+| `toolbar`         | Top toolbar with a central canvas                                                                                   |
+| `three-pane`      | Sidebar + list + content pane                                                                                       |
+| `tabbed-document` | Top-level content tabs                                                                                              |
 
 ### Web (`--target=web`)
 
-| `--template` | Pattern                                           |
-| ------------ | ------------------------------------------------- |
-| `blank`      | Single landing page                               |
-| `dashboard`  | Top nav + sidebar + cards/stats                   |
-| `marketing`  | Hero + sections + footer                          |
-| `sections`   | Section-based content with anchor-link navigation |
-| `auth-dash`  | Login screen that leads to a dashboard            |
+| `--template` | Pattern                                                                                                |
+| ------------ | ------------------------------------------------------------------------------------------------------ |
+| `starter` ⭐ | **Recommended.** File-based routing (real URLs) + session store + `useAsync`/`fetch` dashboard + modal |
+| `blank`      | Single landing page                                                                                    |
+| `dashboard`  | Top nav + sidebar + live data (`useAsync`/`fetch`)                                                     |
+| `marketing`  | Hero + sections + footer                                                                               |
+| `sections`   | Section-based content with anchor-link navigation                                                      |
+| `auth-dash`  | Login (session store) → dashboard                                                                      |
 
-Every skeleton is verified to transpile to clean Dart (`dart analyze`, zero errors).
+Every skeleton is a real-app setup, verified end-to-end: scaffold → transpile →
+build (the tray app via `flutter analyze`), with fully `flutter analyze`-clean Dart.
 
 ---
 

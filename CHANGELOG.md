@@ -5,6 +5,14 @@ scaffolder) are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to
 [Semantic Versioning](https://semver.org/) (pre-1.0: minor = features, patch = fixes).
 
+## [0.2.1] — 2026-05-31
+
+### Documentation
+
+- README skeleton catalog updated: the recommended `starter` per target, plus
+  accurate per-skeleton descriptions (tabs → `<TabView>`, drawer → hamburger,
+  feed/dashboard → live `useAsync`/`fetch`, auth → session store).
+
 ## [0.2.0] — 2026-05-31
 
 ### Added
