@@ -218,6 +218,7 @@ export const initCmd = defineCommand({
         `Next steps:`,
         `  cd ${projectName}`,
         `  bun install`,
+        `  bunx fsx install   # one-time: downloads the Flutter SDK (skip if you already have Flutter)`,
         `  bun run dev`,
       ].join('\n'),
     );
