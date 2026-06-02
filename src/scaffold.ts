@@ -1101,4 +1101,14 @@ export const scaffoldSkeleton = (
   for (const [relPath, content] of Object.entries(skeleton.files)) {
     writeIfAbsent(join(projectDir, relPath), content);
   }
+
+  // The tray skeleton ships a dedicated monochrome menubar glyph at
+  // `icons/tray.png` (project.ts prefers it over the colourful `icons/icon.png`).
+  if (name === 'tray') {
+    const TEMPLATES_DIR = join(import.meta.dir, '../templates');
+    writeIfAbsent(
+      join(projectDir, 'icons', 'tray.png'),
+      readFileSync(join(TEMPLATES_DIR, 'icons', 'tray.png')),
+    );
+  }
 };
