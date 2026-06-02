@@ -261,14 +261,16 @@ export const ItemDetail = () => {
 // the decoded body (dynamic), so post['title'] reads each item's field.
 const MOBILE_FEED_APP_TSX = `import { AppBar, Card, Center, CircularProgressIndicator, ListView, MaterialApp, Scaffold, Text, useAsync, fetch } from 'flutter-tsx';
 
+type Post = { id: number; title: string };
+
 export const FeedScreen = () => {
-  const { data, loading, error } = useAsync(() => fetch('https://jsonplaceholder.typicode.com/posts'));
+  const { data, loading, error } = useAsync(() => fetch<Post[]>('https://jsonplaceholder.typicode.com/posts'));
   if (loading) return <Center><CircularProgressIndicator /></Center>;
   if (error) return <Center><Text>Failed to load feed</Text></Center>;
   return (
     <ListView>
       {data.json.map((post) => (
-        <Card key={post}>
+        <Card key={post['id']}>
           <Text>{post['title']}</Text>
         </Card>
       ))}
@@ -299,8 +301,8 @@ export const MainApp = () => {
       <Scaffold>
         <Column>
           <Text>Step {step + 1} of {STEPS.length}: {STEPS[step]}</Text>
-          {step === 0 && <TextField label="Your name" onChanged={(v) => setName(v)} />}
-          {step === 1 && <TextField label="Your email" onChanged={(v) => setEmail(v)} />}
+          {step === 0 && <TextField label="Your name" onChange={(v) => setName(v)} />}
+          {step === 1 && <TextField label="Your email" onChange={(v) => setEmail(v)} />}
           {step === 2 && <Text>Name: {name}, Email: {email}</Text>}
           {step < STEPS.length - 1 && (
             <ElevatedButton onClick={() => setStep(step + 1)}>
@@ -318,7 +320,9 @@ export const MainApp = () => {
 // once useAuth().login() flips the store, the app rebuilds into a TabView shell.
 const MOBILE_AUTH_STORE_TSX = `import { createStore } from 'flutter-tsx';
 
-export const useAuth = createStore((set) => ({
+type AuthState = { loggedIn: boolean; login: () => void; logout: () => void };
+
+export const useAuth = createStore<AuthState>((set) => ({
   loggedIn: false,
   login: () => set(() => ({ loggedIn: true })),
   logout: () => set(() => ({ loggedIn: false })),
@@ -365,7 +369,14 @@ const STARTER_SESSION_STORE_TSX = `import { createStore } from 'flutter-tsx';
 
 // Global session store → generates an idiomatic ChangeNotifier, provided at the
 // app root and read in screens via useSession().
-export const useSession = createStore((set) => ({
+type SessionState = {
+  name: string;
+  loggedIn: boolean;
+  login: () => void;
+  logout: () => void;
+};
+
+export const useSession = createStore<SessionState>((set) => ({
   name: 'Guest',
   loggedIn: false,
   login: () => set(() => ({ name: 'Ada Lovelace', loggedIn: true })),
@@ -458,7 +469,9 @@ export const MainApp = () => {
 
 const DESKTOP_TRAY_STATS_STORE_TSX = `import { createStore } from 'flutter-tsx';
 
-export const useStats = createStore((set) => ({
+type StatsState = { count: number; bump: () => void };
+
+export const useStats = createStore<StatsState>((set) => ({
   count: 0,
   bump: () => set((s) => ({ count: s.count + 1 })),
 }));
@@ -614,7 +627,7 @@ export const MainApp = () => (
 const WEB_DASHBOARD_APP_TSX = `import { AppBar, Center, CircularProgressIndicator, Column, Container, MaterialApp, Row, Scaffold, Text, useAsync, fetch } from 'flutter-tsx';
 
 export const Dashboard = () => {
-  const { data, loading, error } = useAsync(() => fetch('https://jsonplaceholder.typicode.com/users'));
+  const { data, loading, error } = useAsync(() => fetch<unknown[]>('https://jsonplaceholder.typicode.com/users'));
   if (loading) return <Center><CircularProgressIndicator /></Center>;
   if (error) return <Center><Text>Failed to load</Text></Center>;
   return (
@@ -701,7 +714,9 @@ export const MainApp = () => (
 // useAuth().login() flips the store, the same view shows the dashboard.
 const WEB_AUTH_STORE_TSX = `import { createStore } from 'flutter-tsx';
 
-export const useAuth = createStore((set) => ({
+type AuthState = { loggedIn: boolean; login: () => void; logout: () => void };
+
+export const useAuth = createStore<AuthState>((set) => ({
   loggedIn: false,
   login: () => set(() => ({ loggedIn: true })),
   logout: () => set(() => ({ loggedIn: false })),
@@ -757,7 +772,9 @@ export const MainApp = () => <MaterialApp title="Dashboard" routes="./routes" />
 
 const WEB_STARTER_SESSION_STORE_TSX = `import { createStore } from 'flutter-tsx';
 
-export const useSession = createStore((set) => ({
+type SessionState = { user: string; login: () => void };
+
+export const useSession = createStore<SessionState>((set) => ({
   user: 'Guest',
   login: () => set(() => ({ user: 'Ada Lovelace' })),
 }));

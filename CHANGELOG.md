@@ -5,6 +5,45 @@ scaffolder) are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to
 [Semantic Versioning](https://semver.org/) (pre-1.0: minor = features, patch = fixes).
 
+## [0.3.3] — 2026-06-02
+
+### Fixed
+
+- **Every skeleton now scaffolds `tsc`-clean TypeScript** — proven by a committed
+  typecheck gate in `flutter-tsx` (CI scaffolds all 20 skeletons and runs
+  `tsc --noEmit`). Concretely:
+  - store templates declare their state type and pass it explicitly
+    (`createStore<SessionState>((set) => …)`) — required for correct inference;
+  - `fetch` calls are typed (`fetch<Post[]>(url)`), so `data.json` is typed in
+    `useAsync`; feed/dashboard map their typed results;
+  - the wizard's text input uses `onChange` (matching the typed callback);
+  - list items carry a `key`.
+
+## [0.3.2] — 2026-06-02
+
+### Added
+
+- The desktop **tray** skeleton ships a dedicated, dark monochrome menubar glyph
+  (`icons/tray.png` + `icons/dark/tray.png`) so the macOS template-image tinting
+  renders correctly in both light and dark menubars.
+- Per-target dev/build scripts for all six platforms in the generated
+  `package.json`.
+
+## [0.3.1] — 2026-06-02
+
+### Fixed
+
+- Scaffold brand icons were JPEGs saved with a `.png` extension — replaced with
+  genuine 1024² PNGs so every platform's icon pipeline accepts them.
+
+## [0.3.0] — 2026-06-01
+
+### Changed
+
+- Generated `package.json` pins `flutter-tsx@^0.3.0`, aligning fresh apps with the
+  0.3.0 feature-function + `flutter analyze` gate release. All skeletons remain
+  real, idiomatic apps and analyze-clean against Flutter 3.44.
+
 ## [0.2.2] — 2026-05-31
 
 ### Fixed
