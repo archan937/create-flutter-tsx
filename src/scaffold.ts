@@ -1110,5 +1110,11 @@ export const scaffoldSkeleton = (
       join(projectDir, 'icons', 'tray.png'),
       readFileSync(join(TEMPLATES_DIR, 'icons', 'tray.png')),
     );
+    // Black variant (for light surfaces / non-template platforms); macOS itself
+    // tints the menubar icon automatically via the template-image flag.
+    writeIfAbsent(
+      join(projectDir, 'icons', 'dark', 'tray.png'),
+      readFileSync(join(TEMPLATES_DIR, 'icons', 'dark', 'tray.png')),
+    );
   }
 };
