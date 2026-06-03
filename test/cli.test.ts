@@ -1,3 +1,5 @@
+import './helpers/resemble.js';
+
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import {
   existsSync,
@@ -88,9 +90,15 @@ describe('runInit — non-interactive mode', () => {
       join(tmp, name, 'config', 'app.ts'),
       'utf-8',
     );
-    expect(appConfigTs).toContain("from 'flutter-tsx/config'");
-    expect(appConfigTs).toContain('com.test.myapp');
-    expect(appConfigTs).toContain('ios');
+    expect(appConfigTs).toResemble(`
+      import type { AppConfig } from 'flutter-tsx/config';
+
+      export default {
+        name: 'my-app',
+        bundleId: 'com.test.myapp',
+        target: 'ios',
+      } satisfies AppConfig;
+    `);
 
     rmSync(tmp, { recursive: true });
   });

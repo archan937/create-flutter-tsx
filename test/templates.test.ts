@@ -1,3 +1,5 @@
+import './helpers/resemble.js';
+
 import { describe, expect, test } from 'bun:test';
 
 import { appConfig, userPackageJson } from '@src/index.js';
@@ -12,10 +14,9 @@ describe('userPackageJson — dev script contract', () => {
 
   test('default `dev` script omits --target (relies on config/app.ts fallback)', () => {
     // Regression guard: flutter-tsx's `fsx dev` resolves the target from
-    // config/app.ts when no --target flag is passed. Hardcoding a target here
-    // (e.g. `fsx dev --target=web`) would silently break multi-target configs.
+    // config/app.ts when no --target flag is passed. The exact-equality check
+    // proves no --target is hardcoded (which would break multi-target configs).
     expect(pkg.scripts.dev).toBe('fsx dev');
-    expect(pkg.scripts.dev).not.toContain('--target');
   });
 
   test('per-target dev scripts cover all six platforms', () => {
@@ -26,7 +27,6 @@ describe('userPackageJson — dev script contract', () => {
 
   test('default `build` script omits --target (same config fallback as dev)', () => {
     expect(pkg.scripts.build).toBe('fsx build');
-    expect(pkg.scripts.build).not.toContain('--target');
   });
 
   test('per-target build scripts cover all six platforms', () => {
@@ -43,21 +43,27 @@ describe('userPackageJson — dev script contract', () => {
 describe('appConfig — always embeds a target', () => {
   for (const target of ['web', 'ios', 'android', 'macos'] as const) {
     test(`target '${target}' is embedded so the dev fallback has a value`, () => {
-      const src = appConfig('my-app', 'com.example.myapp', target);
-      expect(src).toContain(`target: '${target}'`);
+      expect(appConfig('my-app', 'com.example.myapp', target)).toResemble(`
+        import type { AppConfig } from 'flutter-tsx/config';
+
+        export default {
+          name: 'my-app',
+          bundleId: 'com.example.myapp',
+          target: '${target}',
+        } satisfies AppConfig;
+      `);
     });
   }
 
-  test('is typed via `satisfies AppConfig` from flutter-tsx/config', () => {
-    const src = appConfig('my-app', 'com.example.myapp', 'web');
-    expect(src).toContain(
-      "import type { AppConfig } from 'flutter-tsx/config'",
-    );
-    expect(src).toContain('satisfies AppConfig');
-  });
-
   test('defaults the target to web when omitted', () => {
-    const src = appConfig('my-app', 'com.example.myapp');
-    expect(src).toContain("target: 'web'");
+    expect(appConfig('my-app', 'com.example.myapp')).toResemble(`
+      import type { AppConfig } from 'flutter-tsx/config';
+
+      export default {
+        name: 'my-app',
+        bundleId: 'com.example.myapp',
+        target: 'web',
+      } satisfies AppConfig;
+    `);
   });
 });

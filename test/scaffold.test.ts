@@ -1,3 +1,5 @@
+import './helpers/resemble.js';
+
 import { describe, expect, test } from 'bun:test';
 import { mkdtempSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
@@ -102,46 +104,114 @@ describe('scaffoldBase', () => {
     expect(darkIcon.length).toBeGreaterThan(100);
   });
 
-  test('config/*.ts are typed via `satisfies` from flutter-tsx/config', () => {
+  test('config/theme.ts is the typed brand-color template', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    for (const [file, type] of [
-      ['theme.ts', 'Theme'],
-      ['permissions.ts', 'Permissions'],
-      ['links.ts', 'Links'],
-      ['env.ts', 'EnvConfig'],
-    ] as const) {
-      const content = readFileSync(join(dir, 'config', file), 'utf-8');
-      expect(content).toContain(
-        `import type { ${type} } from 'flutter-tsx/config'`,
-      );
-      expect(content).toContain(`satisfies ${type}`);
-    }
+    expect(readFileSync(join(dir, 'config', 'theme.ts'), 'utf-8')).toResemble(`
+      import type { Theme } from 'flutter-tsx/config';
+
+      // Brand colors → a full Material 3 theme is generated and applied to your
+      // MaterialApp. A single primary color seeds the whole scheme.
+      export default {
+        light: { primary: '#54a4ff' },
+        // dark: { primary: '#0d1117' },
+      } satisfies Theme;
+    `);
   });
 
-  test('AGENTS.md guides AI assistants (write TSX, not Dart)', () => {
+  test('config/permissions.ts is the typed (empty) template', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const content = readFileSync(join(dir, 'AGENTS.md'), 'utf-8');
-    expect(content).toContain('TSX');
-    expect(content).toContain('.fsx/');
+    expect(
+      readFileSync(join(dir, 'config', 'permissions.ts'), 'utf-8'),
+    ).toResemble(`
+      import type { Permissions } from 'flutter-tsx/config';
+
+      // Permissions are inferred from the hooks you use (e.g. useCamera() → camera),
+      // so most apps need nothing here. Add an entry only to customize the iOS usage
+      // description shown in the system prompt.
+      export default {
+        // camera: 'Scan QR codes in the app.',
+      } satisfies Permissions;
+    `);
   });
 
-  test('legal stubs contain TODO marker', () => {
+  test('config/links.ts is the typed (empty) template', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const privacy = readFileSync(join(dir, 'legal', 'privacy.md'), 'utf-8');
-    const terms = readFileSync(join(dir, 'legal', 'terms.md'), 'utf-8');
-    expect(privacy).toContain('TODO');
-    expect(terms).toContain('TODO');
+    expect(readFileSync(join(dir, 'config', 'links.ts'), 'utf-8')).toResemble(`
+      import type { Links } from 'flutter-tsx/config';
+
+      // Deep links + universal/app links — one declaration, both platforms.
+      export default {
+        // scheme: 'myapp',              // myapp://...
+        // domains: ['app.example.com'], // https://... universal links
+      } satisfies Links;
+    `);
   });
 
-  test('config/theme.ts has a primary brand color', () => {
+  test('config/env.ts is the typed (empty) template', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const content = readFileSync(join(dir, 'config', 'theme.ts'), 'utf-8');
-    expect(content).toContain('primary');
-    expect(content).toContain('#54a4ff');
+    expect(readFileSync(join(dir, 'config', 'env.ts'), 'utf-8')).toResemble(`
+      import type { EnvConfig } from 'flutter-tsx/config';
+
+      // Build-time values → passed to the app as --dart-define. Because this is
+      // TypeScript, you can read process.env here for secrets and provide defaults.
+      export default {
+        // API_URL: process.env.API_URL ?? 'https://api.example.com',
+      } satisfies EnvConfig;
+    `);
+  });
+
+  test('AGENTS.md guides AI assistants (write TSX, never edit .fsx/)', () => {
+    const dir = mkTmp();
+    scaffoldBase(dir);
+    expect(readFileSync(join(dir, 'AGENTS.md'), 'utf-8')).toResemble(`
+      # Working in this project (for AI assistants)
+
+      This is a **Flutter.tsx** app: you write **TSX**, and \`fsx dev\` transpiles it to
+      Dart and runs Flutter. Follow these rules:
+
+      - **Write TSX, never Dart.** Widgets and hooks come from \`flutter-tsx\`
+        (\`import { Scaffold, Column, Text, useState } from 'flutter-tsx'\`). App code
+        lives in \`src/\`.
+      - **Never edit generated output.** \`.fsx/\` (the generated Flutter project,
+        including \`lib/*.dart\`) is produced by the tool — changes there are
+        overwritten. Never hand-edit \`ios/\`, \`android/\`, \`Info.plist\`,
+        \`AndroidManifest.xml\`, etc.
+      - **Config is typed TypeScript** in \`config/*.ts\` (\`satisfies\` a type from
+        \`flutter-tsx/config\`): \`config/app.ts\` (identity), \`config/theme.ts\`,
+        \`config/links.ts\`, \`config/env.ts\`, \`config/permissions.ts\`,
+        \`config/release.ts\`. Edit these, not native files.
+      - **Permissions are inferred** from the hooks you use (\`useCamera()\` adds the
+        camera permission automatically). \`config/permissions.ts\` is only for custom
+        usage strings.
+      - **Assets are semantic files**: app icon at \`icons/icon.png\`, translations in
+        \`locales/*.json\` (read via \`const t = useTranslations()\`), legal docs in
+        \`legal/\`.
+      - **Run it:** \`bun install\` then \`bun run dev\`.
+    `);
+  });
+
+  test('legal stubs are the TODO placeholder docs', () => {
+    const dir = mkTmp();
+    scaffoldBase(dir);
+    expect(readFileSync(join(dir, 'legal', 'privacy.md'), 'utf-8')).toResemble(`
+      # Privacy Policy
+
+      <!-- TODO: replace this stub before publishing to the App Store or Play Store. -->
+      <!-- Stores will reject your app without a real, legally-reviewed privacy policy. -->
+
+      This app collects no personal data.
+    `);
+    expect(readFileSync(join(dir, 'legal', 'terms.md'), 'utf-8')).toResemble(`
+      # Terms of Service
+
+      <!-- TODO: replace this stub with real terms before publishing. -->
+
+      By using this app, you agree to use it responsibly.
+    `);
   });
 
   test('writes .prettierrc', () => {
@@ -155,8 +225,20 @@ describe('scaffoldBase', () => {
   test('writes eslint.config.js referencing typescript-eslint', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    const content = readFileSync(join(dir, 'eslint.config.js'), 'utf-8');
-    expect(content).toContain('typescript-eslint');
+    expect(readFileSync(join(dir, 'eslint.config.js'), 'utf-8')).toResemble(`
+      import tseslint from 'typescript-eslint';
+      import prettierConfig from 'eslint-config-prettier';
+
+      export default tseslint.config(
+        ...tseslint.configs.recommended,
+        prettierConfig,
+        {
+          rules: {
+            '@typescript-eslint/no-unused-vars': 'warn',
+          },
+        },
+      );
+    `);
   });
 
   test('is idempotent — re-running does not duplicate content', () => {
@@ -189,11 +271,30 @@ describe('scaffoldSkeleton', () => {
     expect(fileList.some((f) => f.includes('SettingsScreen'))).toBe(true);
   });
 
-  test('tray — App.tsx mentions tray_manager', () => {
+  test('tray — App.tsx is the menu-bar skeleton', () => {
     const dir = mkTmp();
     scaffoldSkeleton(dir, 'tray', 'desktop');
-    const app = readFileSync(join(dir, 'src', 'App.tsx'), 'utf-8');
-    expect(app.toLowerCase()).toContain('tray');
+    expect(readFileSync(join(dir, 'src', 'App.tsx'), 'utf-8')).toResemble(`
+      import { AppBar, Center, Column, ElevatedButton, MaterialApp, Scaffold, Text } from 'flutter-tsx';
+      import { useStats } from './stores/stats';
+
+      export const MainApp = () => {
+        const { count, bump } = useStats();
+        return (
+          <MaterialApp title="Tray App">
+            <Scaffold appBar={<AppBar title={<Text>Tray App</Text>} />}>
+              <Center>
+                <Column>
+                  <Text>Running in the menu bar — close the window, reopen from the tray.</Text>
+                  <Text>Clicks: {count}</Text>
+                  <ElevatedButton onClick={bump}><Text>Bump</Text></ElevatedButton>
+                </Column>
+              </Center>
+            </Scaffold>
+          </MaterialApp>
+        );
+      };
+    `);
   });
 
   test('tray — writes config/tray.ts enabling tray mode', () => {
@@ -201,9 +302,19 @@ describe('scaffoldSkeleton', () => {
     scaffoldSkeleton(dir, 'tray', 'desktop');
     // Presence of config/tray.ts turns on system-tray mode (window_manager +
     // tray_manager bootstrap is generated by fsx at build time).
-    const trayConfig = readFileSync(join(dir, 'config', 'tray.ts'), 'utf-8');
-    expect(trayConfig).toContain('satisfies TrayConfig');
-    expect(trayConfig).toContain("action: 'quit'");
+    expect(readFileSync(join(dir, 'config', 'tray.ts'), 'utf-8')).toResemble(`
+      import type { TrayConfig } from 'flutter-tsx/config';
+
+      // Presence of this file enables system-tray / menubar mode.
+      export default {
+        tooltip: 'Tray App',
+        menu: [
+          { label: 'Show', action: 'show' },
+          { label: 'Hide', action: 'hide' },
+          { label: 'Quit', action: 'quit' },
+        ],
+      } satisfies TrayConfig;
+    `);
   });
 
   test('locale keys are merged — existing keys preserved when re-scaffolding', () => {
