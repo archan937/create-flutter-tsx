@@ -1,8 +1,18 @@
-# create-flutter-tsx
+<p align="center">
+  <img src="docs/icon.png" width="112" height="112" alt="Flutter.tsx logo" />
+</p>
 
-[![create-flutter-tsx on npm](https://img.shields.io/npm/v/create-flutter-tsx.svg)](https://www.npmjs.com/package/create-flutter-tsx)
+<h1 align="center">create-flutter-tsx</h1>
 
-Scaffold a new [Flutter.tsx](https://www.npmjs.com/package/flutter-tsx) project — write your app in TSX, ship it everywhere Flutter runs.
+<p align="center">Scaffold a new <a href="https://www.npmjs.com/package/flutter-tsx">Flutter.tsx</a> project — write your app in TSX, ship it everywhere Flutter runs.</p>
+
+<p align="center"><sub>The interactive project scaffolder for <b>Flutter.tsx</b>.</sub></p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/create-flutter-tsx"><img src="https://img.shields.io/npm/v/create-flutter-tsx.svg" alt="create-flutter-tsx on npm" /></a>
+</p>
+
+---
 
 ```sh
 bun create flutter-tsx my-app
