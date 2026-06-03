@@ -1,5 +1,7 @@
 # create-flutter-tsx
 
+[![create-flutter-tsx on npm](https://img.shields.io/npm/v/create-flutter-tsx.svg)](https://www.npmjs.com/package/create-flutter-tsx)
+
 Scaffold a new [Flutter.tsx](https://www.npmjs.com/package/flutter-tsx) project — write your app in TSX, ship it everywhere Flutter runs.
 
 ```sh
