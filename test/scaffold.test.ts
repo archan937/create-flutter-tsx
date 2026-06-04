@@ -122,9 +122,8 @@ describe('scaffoldBase', () => {
   test('config/permissions.ts is the typed (empty) template', () => {
     const dir = mkTmp();
     scaffoldBase(dir);
-    expect(
-      readFileSync(join(dir, 'config', 'permissions.ts'), 'utf-8'),
-    ).toResemble(`
+    expect(readFileSync(join(dir, 'config', 'permissions.ts'), 'utf-8'))
+      .toResemble(`
       import type { Permissions } from 'flutter-tsx/config';
 
       // Permissions are inferred from the hooks you use (e.g. useCamera() → camera),
